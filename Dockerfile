@@ -23,9 +23,8 @@ COPY . .
 RUN mkdir -p work
 
 ENV NODE_ENV=production
-ENV PORT=3000
 ENV YTDLP_PATH=/usr/local/bin/yt-dlp
 
-EXPOSE 3000
+EXPOSE 3000 8080
 
 CMD ["node", "server.js"]

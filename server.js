@@ -906,6 +906,18 @@ app.get('/api/status', (_req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   const p = serverProvider();
-  console.log(`ClipBest running -> http://0.0.0.0:${PORT} (default hooks: ${p === 'free' ? 'basic free mode - set GEMINI_API_KEY for free AI hooks' : LABELS[p] + ' ' + MODELS[p]}; encoder: ${ENCODER.name})`);
+  console.log(`ClipBest primary running -> http://0.0.0.0:${PORT} (default hooks: ${p === 'free' ? 'basic free mode - set GEMINI_API_KEY for free AI hooks' : LABELS[p] + ' ' + MODELS[p]}; encoder: ${ENCODER.name})`);
   detectEncoder().catch(() => {});
+});
+
+// Fallback listeners for Railway reverse-proxy port ambiguity (3000 vs 8080)
+[3000, 8080].forEach(p => {
+  if (p !== PORT) {
+    try {
+      const fallbackServer = app.listen(p, '0.0.0.0', () => {
+        console.log(`ClipBest dual-bind fallback active on 0.0.0.0:${p}`);
+      });
+      fallbackServer.on('error', () => {});
+    } catch {}
+  }
 });
