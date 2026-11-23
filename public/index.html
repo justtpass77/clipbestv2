@@ -2356,7 +2356,7 @@ footer.footer{
 
       <div style="margin-bottom:12px">
         <label class="field-label" for="checkoutEmail" style="font-size:11.5px;margin-bottom:4px">Email address (for license backup & receipts)</label>
-        <input class="input" id="checkoutEmail" type="email" placeholder="streamer@twitch.tv" autocomplete="email">
+        <input class="input" id="checkoutEmail" type="email" placeholder="you@email.com" autocomplete="email">
       </div>
 
       <button class="btn btn-accent btn-lg" id="modalCheckoutBtn" type="button" style="width:100%;height:42px;font-size:14px;justify-content:center">
@@ -3258,7 +3258,7 @@ $('modalVerifyBtn').onclick = () => verifyProCode($('modalProCode').value, false
 
 $('modalCheckoutBtn').onclick = async () => {
   const plan = document.querySelector('input[name=checkoutPlan]:checked')?.value || 'pro';
-  const email = ($('checkoutEmail').value || '').trim() || 'streamer@twitch.tv';
+  const email = ($('checkoutEmail').value || '').trim();
   $('modalCheckoutBtn').disabled = true;
   $('modalCheckoutBtn').textContent = 'Opening Gumroad...';
   try {

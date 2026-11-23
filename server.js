@@ -826,12 +826,13 @@ app.post('/api/payment-config', (req, res) => {
 // Checkout Routing: Gumroad or Instant Sandbox Provisioning
 app.post('/api/checkout', (req, res) => {
   const plan = req.body.plan === 'agency' ? 'agency' : 'pro';
-  const email = String(req.body.email || 'creator@clipbest.local').trim();
+  const email = String(req.body.email || '').trim();
   const cfg = loadPaymentConfig();
 
   const rawUrl = plan === 'agency' ? cfg.gumroad.agencyUrl : cfg.gumroad.proUrl;
-  const encodedEmail = encodeURIComponent(email);
-  const gumroadUrl = rawUrl.includes('?') ? `${rawUrl}&email=${encodedEmail}` : `${rawUrl}?email=${encodedEmail}`;
+  const gumroadUrl = email
+    ? (rawUrl.includes('?') ? `${rawUrl}&email=${encodeURIComponent(email)}` : `${rawUrl}?email=${encodeURIComponent(email)}`)
+    : rawUrl;
 
   return res.json({
     success: true,
