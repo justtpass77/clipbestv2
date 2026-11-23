@@ -25,9 +25,9 @@ const PAYMENT_CONFIG_FILE = path.join(__dirname, 'payment-config.json');
 function loadPaymentConfig() {
   let cfg = {
     gumroad: {
-      proUrl: process.env.GUMROAD_CREATOR_PRO_URL || 'https://gumroad.com/l/clipbest-pro',
+      proUrl: process.env.GUMROAD_CREATOR_PRO_URL || 'https://webox.gumroad.com/l/creatorpro',
       agencyUrl: process.env.GUMROAD_AGENCY_URL || 'https://gumroad.com/l/clipbest-agency',
-      proPermalink: process.env.GUMROAD_PRO_PERMALINK || 'clipbest-pro',
+      proPermalink: process.env.GUMROAD_PRO_PERMALINK || 'creatorpro',
       agencyPermalink: process.env.GUMROAD_AGENCY_PERMALINK || 'clipbest-agency',
     },
     mode: process.env.PAYMENT_MODE || 'live'
@@ -805,7 +805,7 @@ app.get('/api/payment-config', (_req, res) => {
       agencyUrl: cfg.gumroad.agencyUrl,
       proPermalink: cfg.gumroad.proPermalink,
       agencyPermalink: cfg.gumroad.agencyPermalink,
-      configured: !cfg.gumroad.proUrl.includes('clipbest-pro')
+      configured: !cfg.gumroad.proUrl.includes('example.com') && Boolean(cfg.gumroad.proUrl)
     },
     mode: cfg.mode
   });

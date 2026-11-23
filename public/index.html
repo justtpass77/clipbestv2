@@ -2013,6 +2013,7 @@ footer.footer{
             <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Priority GPU turbo rendering</li>
           </ul>
           <button class="btn btn-accent btn-lg" id="joinProBtn" type="button" onclick="openModal('pro')">Get Creator Pro</button>
+          <div style="margin-top:8px"><a href="https://webox.gumroad.com/l/creatorpro" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--faint);text-decoration:underline">Buy directly on Gumroad ↗</a></div>
         </div>
 
         <!-- Clipper Agency -->
@@ -2225,6 +2226,11 @@ footer.footer{
       <button class="btn btn-accent btn-lg" id="modalCheckoutBtn" type="button" style="width:100%;height:42px;font-size:14px;justify-content:center">
         Proceed to Gumroad Checkout
       </button>
+      <div style="text-align:center;margin-top:8px">
+        <a href="https://webox.gumroad.com/l/creatorpro" target="_blank" rel="noopener" id="directGumroadLink" style="color:var(--faint);font-size:11.5px;text-decoration:underline">
+          Or open checkout directly on Gumroad ↗
+        </a>
+      </div>
 
       <div id="foundingBanner" style="background:rgba(255,85,32,0.06);border:1px solid rgba(255,85,32,0.25);border-radius:9px;padding:9px 12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -2254,7 +2260,7 @@ footer.footer{
         <div style="display:grid;gap:8px">
           <div>
             <label class="field-label" for="cfgGumroadPro" style="font-size:10.5px">Gumroad Creator Pro URL ($9/mo)</label>
-            <input class="input mono" id="cfgGumroadPro" style="font-size:11px;height:32px" placeholder="https://gumroad.com/l/clipbest-pro">
+            <input class="input mono" id="cfgGumroadPro" style="font-size:11px;height:32px" placeholder="https://webox.gumroad.com/l/creatorpro">
           </div>
           <div>
             <label class="field-label" for="cfgGumroadAgency" style="font-size:10.5px">Gumroad Clipper Agency URL ($19/mo)</label>
@@ -2263,7 +2269,7 @@ footer.footer{
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div>
               <label class="field-label" for="cfgGumroadProPermalink" style="font-size:10.5px">Pro Permalink</label>
-              <input class="input mono" id="cfgGumroadProPermalink" style="font-size:11px;height:32px" placeholder="clipbest-pro">
+              <input class="input mono" id="cfgGumroadProPermalink" style="font-size:11px;height:32px" placeholder="creatorpro">
             </div>
             <div>
               <label class="field-label" for="cfgGumroadAgencyPermalink" style="font-size:10.5px">Agency Permalink</label>
@@ -3083,6 +3089,9 @@ function selectPlan(plan) {
   if (proRadio) proRadio.checked = !isAgency;
   if ($('tierCardPro')) $('tierCardPro').classList.toggle('selected', !isAgency);
   if ($('tierCardAgency')) $('tierCardAgency').classList.toggle('selected', isAgency);
+  if ($('directGumroadLink')) {
+    $('directGumroadLink').href = isAgency ? 'https://gumroad.com/l/clipbest-agency' : 'https://webox.gumroad.com/l/creatorpro';
+  }
 }
 if ($('tierCardPro')) $('tierCardPro').onclick = () => selectPlan('pro');
 if ($('tierCardAgency')) $('tierCardAgency').onclick = () => selectPlan('agency');
