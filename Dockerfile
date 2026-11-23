@@ -14,7 +14,7 @@ WORKDIR /app
 
 # Copy dependency manifests and install
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copy application code
 COPY . .

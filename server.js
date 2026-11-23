@@ -213,11 +213,16 @@ const upload = multer({
 
 function run(cmd, args, cwd) {
   return new Promise((resolve, reject) => {
-    const p = spawn(cmd, args, { windowsHide: true, cwd });
-    let out = '', err = '';
-    p.stdout.on('data', d => (out += d));
-    p.stderr.on('data', d => (err += d));
-    p.on('close', code => (code === 0 ? resolve(out) : reject(new Error((err || out).slice(-400)))));
+    try {
+      const p = spawn(cmd, args, { windowsHide: true, cwd });
+      let out = '', err = '';
+      p.on('error', reject);
+      if (p.stdout) p.stdout.on('data', d => (out += d));
+      if (p.stderr) p.stderr.on('data', d => (err += d));
+      p.on('close', code => (code === 0 ? resolve(out) : reject(new Error((err || out).slice(-400)))));
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -254,6 +259,7 @@ async function loudnessSeries(id) {
   const filter = `aresample=8000,astats=metadata=1:reset=8000,ametadata=print:key=lavfi.astats.Overall.RMS_level:file=rms.txt`;
   await new Promise((resolve, reject) => {
     const p = spawn('ffmpeg', ['-y', '-i', 'audio.m4a', '-vn', '-af', filter, '-f', 'null', '-'], { cwd: dir, windowsHide: true });
+    p.on('error', reject);
     p.on('close', c => (c === 0 ? resolve() : reject(new Error('ffmpeg audio analysis failed'))));
   });
   const lines = fs.readFileSync(path.join(dir, 'rms.txt'), 'utf8').split('\n');
@@ -886,8 +892,9 @@ app.post('/api/webhooks/payment', (req, res) => {
   res.json({ success: true, code: newCode });
 });
 
-// Server system status
-const PORT = process.env.PORT || 3000;
+// Server system status & health check
+const PORT = Number(process.env.PORT) || 3000;
+app.get('/health', (_req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
 app.get('/api/status', (_req, res) => {
   const p = serverProvider();
   res.json({
@@ -897,7 +904,8 @@ app.get('/api/status', (_req, res) => {
   });
 });
 
-detectEncoder().then(() => app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   const p = serverProvider();
-  console.log(`ClipBest running -> http://localhost:${PORT}  (default hooks: ${p === 'free' ? 'basic free mode - set GEMINI_API_KEY for free AI hooks' : LABELS[p] + ' ' + MODELS[p]}; encoder: ${ENCODER.name})`);
-}));
+  console.log(`ClipBest running -> http://0.0.0.0:${PORT} (default hooks: ${p === 'free' ? 'basic free mode - set GEMINI_API_KEY for free AI hooks' : LABELS[p] + ' ' + MODELS[p]}; encoder: ${ENCODER.name})`);
+  detectEncoder().catch(() => {});
+});
