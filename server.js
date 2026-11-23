@@ -13,9 +13,11 @@ const { buildAss, CAPTION_STYLES } = require('./captions');
 const YTDLP_BIN = process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp';
 const YTDLP = (process.env.YTDLP_PATH && fs.existsSync(process.env.YTDLP_PATH))
   ? process.env.YTDLP_PATH
-  : (fs.existsSync(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN))
-      ? path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN)
-      : (process.env.YTDLP_PATH || 'yt-dlp'));
+  : (fs.existsSync('/usr/local/bin/yt-dlp')
+      ? '/usr/local/bin/yt-dlp'
+      : (fs.existsSync(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN))
+          ? path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN)
+          : (process.env.YTDLP_PATH || 'yt-dlp')));
 const WORK = path.join(__dirname, 'work');
 const CLIP_LEN = 35;      // seconds per clip
 const MAX_CLIPS = 10;     // moments we look for
@@ -114,24 +116,49 @@ function cleanupWorkDir() {
 cleanupWorkDir();
 setInterval(cleanupWorkDir, 60 * 60 * 1000);
 
-const YT_ARGS = [
+// Check for cookies (from file or YTDLP_COOKIES env var)
+const COOKIES_FILE = path.join(WORK, 'cookies.txt');
+if (process.env.YTDLP_COOKIES && !fs.existsSync(COOKIES_FILE)) {
+  try {
+    fs.mkdirSync(WORK, { recursive: true });
+    fs.writeFileSync(COOKIES_FILE, process.env.YTDLP_COOKIES, 'utf8');
+    console.log('[yt-dlp] Initialized cookies from YTDLP_COOKIES environment variable');
+  } catch (err) {
+    console.error('[yt-dlp] Failed to write cookies from env:', err.message);
+  }
+}
+
+const BASE_YT_ARGS = [
   '--no-playlist',
   '--no-check-certificates',
   '--js-runtimes', 'node',
-  '--extractor-args', 'youtube:player_client=android,web',
-  '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  '--force-ipv4',
+  '--socket-timeout', '30',
+  '--extractor-args', 'youtube:player_client=web_embedded,web,tv',
+  '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
 ];
+
+function getYtArgs() {
+  const args = [...BASE_YT_ARGS];
+  const cookiePath = process.env.YTDLP_COOKIES_FILE || (fs.existsSync(COOKIES_FILE) ? COOKIES_FILE : null) || (fs.existsSync(path.join(__dirname, 'cookies.txt')) ? path.join(__dirname, 'cookies.txt') : null);
+  if (cookiePath && fs.existsSync(cookiePath)) {
+    args.push('--cookies', cookiePath);
+  }
+  return args;
+}
+
+const YT_ARGS = getYtArgs();
 
 function cleanYtError(err) {
   const msg = String(err?.message || err || '');
-  if (/unavailable/i.test(msg)) {
+  if (/unavailable|does not exist/i.test(msg)) {
     return 'This YouTube video is unavailable or has been removed. Please verify the URL or try another video.';
   }
   if (/private|Sign in to confirm your age|Sign in/i.test(msg)) {
     return 'This YouTube video is private or age-restricted. You can upload the video file directly using the "Upload Video File" tab above.';
   }
-  if (/HTTP Error 403|Forbidden|Failed to extract any player response|bot|automated queries|captcha/i.test(msg)) {
-    return 'YouTube blocked access from cloud servers (HTTP 403 / Bot Protection). Please use the "Upload Video File" tab above to upload your stream or video directly — it processes fast and with 100% reliability!';
+  if (/HTTP Error 403|Forbidden|Failed to extract any player response|bot|automated queries|captcha|blocking/i.test(msg)) {
+    return 'YouTube blocked access from cloud servers (HTTP 403). Please use the "Upload Video File" tab above to upload your video directly — it processes fast with 100% reliability!';
   }
   if (/Live streams must have ended/i.test(msg)) {
     return 'This stream is still live. Please wait until the broadcast ends and paste the VOD link.';
@@ -144,6 +171,43 @@ function cleanYtError(err) {
     .trim();
 
   return cleaned || 'Failed to process YouTube stream. Please verify the link or upload the video directly via the Upload tab.';
+}
+
+async function fetchVideoInfo(url) {
+  // Strategy 1: Default arguments (web_embedded,web,tv)
+  try {
+    const raw = await run(YTDLP, [...getYtArgs(), '-J', url]);
+    return JSON.parse(raw);
+  } catch (err1) {
+    console.warn('[yt-dlp info] Strategy 1 failed, trying android client...', err1.message);
+  }
+
+  // Strategy 2: Android client fallback
+  try {
+    const base = getYtArgs().filter(a => a !== 'youtube:player_client=web_embedded,web,tv');
+    const raw = await run(YTDLP, [
+      ...base,
+      '--extractor-args', 'youtube:player_client=android',
+      '-J', url
+    ]);
+    return JSON.parse(raw);
+  } catch (err2) {
+    console.warn('[yt-dlp info] Strategy 2 failed, trying tv client...', err2.message);
+  }
+
+  // Strategy 3: TV client fallback
+  try {
+    const base = getYtArgs().filter(a => a !== 'youtube:player_client=web_embedded,web,tv');
+    const raw = await run(YTDLP, [
+      ...base,
+      '--extractor-args', 'youtube:player_client=tv',
+      '-J', url
+    ]);
+    return JSON.parse(raw);
+  } catch (err3) {
+    console.error('[yt-dlp info] All strategies failed:', err3.message);
+    throw err3;
+  }
 }
 
 // ---- encoder: use the GPU if ffmpeg can, else fast CPU x264 ----
@@ -282,7 +346,7 @@ function peaksFromSeries(series, step, duration, n) {
 
 async function audioLoudness(url, id) {
   const a = path.join(WORK, id, 'audio.m4a');
-  await run(YTDLP, [...YT_ARGS, '-f', 'ba/b', '-o', a, url]);
+  await run(YTDLP, [...getYtArgs(), '-f', 'ba/b/best', '-o', a, url]);
   return a;
 }
 
@@ -308,7 +372,7 @@ async function loudnessSeries(id) {
 // ---- captions (YouTube auto-caption word timings -> karaoke-style ASS) ----
 async function fetchWords(url, dir) {
   try {
-    await run(YTDLP, [...YT_ARGS, '--skip-download', '--write-subs', '--write-auto-subs', '--sub-langs', 'en-orig,en,en-US,en-GB',
+    await run(YTDLP, [...getYtArgs(), '--skip-download', '--write-subs', '--write-auto-subs', '--sub-langs', 'en-orig,en,en-US,en-GB',
       '--sub-format', 'json3', '--no-playlist', '-o', path.join(dir, 'subs'), url]).catch(() => {});
     const files = fs.readdirSync(dir).filter(n => n.endsWith('.json3'));
     const pref = ['subs.en-orig.json3', 'subs.en.json3', 'subs.en-US.json3', 'subs.en-GB.json3'];
@@ -392,7 +456,7 @@ async function processJob(id, url, secret = {}) {
     set('Reading video info', 5, 0);
     let info;
     try {
-      info = JSON.parse(await run(YTDLP, [...YT_ARGS, '-J', url]));
+      info = await fetchVideoInfo(url);
     } catch (ytErr) {
       throw new Error(cleanYtError(ytErr));
     }
@@ -433,7 +497,7 @@ async function processJob(id, url, secret = {}) {
 
     // Start downloading clip segments
     const downloads = spans.map(s => run(YTDLP, [
-      ...YT_ARGS, '-f', 'bv*[height<=720]+ba/b[height<=720]/b/18/best',
+      ...getYtArgs(), '-f', 'bv*[height<=720]+ba/b[height<=720]/b/18/best',
       '--download-sections', `*${s.start}-${s.end}`, '--force-keyframes-at-cuts',
       '--merge-output-format', 'mp4', '-o', path.join(dir, `raw${s.k}.mp4`), url,
     ]));
