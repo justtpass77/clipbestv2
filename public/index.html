@@ -1,0 +1,3236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ClipBest Studio — Automated Video Clipper for Streamers & Creators</title>
+<meta name="description" content="Your next viral clip is hiding in your stream. Find the best moments, create engaging Shorts, and export in seconds with replay heatmap detection and kinetic subtitles.">
+<meta property="og:title" content="ClipBest Studio — Automated Video Clipper for Streamers & Creators">
+<meta property="og:description" content="Turn multi-hour streams into viral vertical shorts. Automated facecam splitting, replay heatmap detection, and frame-accurate kinetic subtitles.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://gumroad.com/js/gumroad.js" defer></script>
+<style>
+:root{
+  --bg:#09090b;
+  --surface:#111114;
+  --surface-hover:#16161c;
+  --sunken:#0c0c0f;
+  --card:#121216;
+  --card-border:rgba(255,255,255,0.08);
+  --card-border-hover:rgba(255,255,255,0.18);
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.14);
+  --ink:#f4f4f5;
+  --ink-2:#e4e4e7;
+  --muted:#a1a1aa;
+  --faint:#71717a;
+  --accent:#ff5520;
+  --accent-hover:#ff6a38;
+  --accent-glow:rgba(255,85,32,0.22);
+  --accent-soft:rgba(255,85,32,0.09);
+  --accent-2:#8b5cf6;
+  --ok:#10b981;
+  --ok-soft:rgba(16,185,129,0.1);
+  --err:#ef4444;
+  --err-soft:rgba(239,68,68,0.1);
+  --gold:#f59e0b;
+  --gold-soft:rgba(245,158,11,0.12);
+  --r-sm:6px;
+  --r:10px;
+  --r-lg:16px;
+  --r-xl:22px;
+  --font:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,Monaco,Consolas,monospace;
+  --shadow-card:0 16px 36px -12px rgba(0,0,0,0.8),0 0 1px 1px rgba(255,255,255,0.06);
+  --shadow-lg:0 24px 48px -18px rgba(0,0,0,0.9),0 0 1px 1px rgba(255,255,255,0.09);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;
+  background-color:var(--bg);
+  background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font:14.5px/1.6 var(--font);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+  position:relative;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle at 50% 12%,transparent 45%,rgba(9,9,11,0.85) 100%);
+  pointer-events:none;
+  z-index:0;
+}
+
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.mono{font-family:var(--mono);font-feature-settings:"tnum"}
+.container{max-width:1160px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Navigation */
+.nav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(9,9,11,0.85);
+  backdrop-filter:saturate(1.5) blur(16px);
+  border-bottom:1px solid var(--line);
+  transition:border-color .2s,background .2s;
+}
+.nav.scrolled{background:rgba(9,9,11,0.96);border-bottom-color:var(--line-strong)}
+.nav .container{height:58px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16.5px;letter-spacing:-.02em}
+.brand-mark{
+  width:26px;
+  height:26px;
+  border-radius:7px;
+  background:linear-gradient(135deg,#ff5520,#ff7a38);
+  display:grid;
+  place-items:center;
+  box-shadow:0 0 12px rgba(255,85,32,0.35);
+}
+.brand-mark svg{width:13px;height:13px;fill:#fff}
+.brand-tag{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--faint);
+  background:rgba(255,255,255,0.06);
+  padding:1px 6px;
+  border-radius:4px;
+  font-weight:500;
+}
+.nav-links{display:flex;gap:20px;color:var(--muted);font-size:13.5px;font-weight:500}
+.nav-links a{transition:color .15s}
+.nav-links a:hover{color:#fff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+.pro-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  height:30px;
+  padding:0 11px;
+  border-radius:999px;
+  background:rgba(255,85,32,0.09);
+  border:1px solid rgba(255,85,32,0.25);
+  color:#ff9838;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .15s;
+}
+.pro-pill:hover{transform:translateY(-1px);border-color:var(--accent);color:#fff}
+.pro-pill.active{background:rgba(245,158,11,0.14);border-color:rgba(245,158,11,0.6);color:#fbbf24}
+
+/* Utilitarian Studio Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  height:36px;
+  padding:0 14px;
+  border-radius:var(--r-sm);
+  border:1px solid var(--line-strong);
+  background:var(--surface);
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .15s ease;
+  white-space:nowrap;
+  user-select:none;
+}
+.btn:hover{background:var(--surface-hover);border-color:rgba(255,255,255,0.25);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:#ffffff;color:#09090b;border-color:#ffffff;font-weight:600}
+.btn-primary:hover{background:#f4f4f5;color:#000000;border-color:#f4f4f5}
+.btn-accent{background:var(--accent);color:#ffffff;border-color:rgba(255,85,32,0.4);font-weight:600}
+.btn-accent:hover{background:var(--accent-hover)}
+.btn-lg{height:42px;padding:0 18px;font-size:14px;border-radius:8px}
+.btn-sm{height:28px;padding:0 10px;font-size:11.5px;border-radius:6px}
+.btn-outline{background:transparent;border:1px solid var(--line-strong);color:var(--ink-2)}
+.btn-outline:hover{background:rgba(255,255,255,0.06);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn svg{width:14px;height:14px;flex:none}
+
+/* Hero Section */
+.hero{padding:54px 0 36px;text-align:center;position:relative}
+.badge-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:4px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.03em;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.badge-pill b{color:var(--ink);font-weight:600}
+
+h1{
+  font-size:clamp(32px,5.2vw,54px);
+  line-height:1.1;
+  letter-spacing:-.035em;
+  font-weight:700;
+  margin:0 auto 14px;
+  max-width:840px;
+  color:#ffffff;
+}
+.hero-lede{
+  font-size:clamp(15px,1.8vw,17.5px);
+  color:var(--muted);
+  max-width:640px;
+  margin:0 auto 26px;
+  line-height:1.55;
+}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px}
+
+/* Studio Command Center (Composer) */
+.composer-wrap{max-width:740px;margin:0 auto;position:relative}
+.composer{
+  position:relative;
+  z-index:1;
+  background:rgba(18,18,22,0.94);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-lg);
+  padding:14px;
+  text-align:left;
+  display:grid;
+  gap:12px;
+  transition:border-color .2s;
+}
+.composer:focus-within{border-color:rgba(255,255,255,0.25)}
+
+/* Source Segment Tabs */
+.source-tabs{
+  display:flex;
+  gap:4px;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:3px;
+}
+.tab-btn{
+  flex:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  height:32px;
+  border:0;
+  background:transparent;
+  border-radius:6px;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+}
+.tab-btn:hover{color:#fff}
+.tab-btn.active{background:rgba(255,255,255,0.08);color:#fff;font-weight:600}
+
+/* URL Input Row */
+.composer-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  padding:3px 5px;
+  transition:border-color .2s;
+}
+.composer-row:focus-within{border-color:rgba(255,255,255,0.35)}
+.composer-input-wrap{display:flex;align-items:center;flex:1;min-width:0}
+.composer-input-wrap svg.lead{width:18px;height:18px;color:var(--faint);margin-left:8px;flex:none}
+.composer input[type=url]{
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  height:42px;
+  padding:0 8px;
+  font-size:14px;
+  color:#fff;
+}
+.composer input::placeholder{color:var(--faint)}
+
+/* Dropzone Upload */
+.dropzone{
+  display:none;
+  border:1.5px dashed rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:26px 18px;
+  text-align:center;
+  cursor:pointer;
+  background:rgba(0,0,0,0.25);
+  transition:all .2s;
+}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:rgba(255,85,32,0.04)}
+.drop-content{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-2);font-size:13px}
+.drop-content svg{color:var(--faint);transition:transform .2s}
+.dropzone:hover .drop-content svg{transform:translateY(-2px);color:var(--accent)}
+.drop-content small{color:var(--muted);font-size:11px}
+.file-selected{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  padding:6px 12px;
+  font-weight:600;
+  font-size:12.5px;
+  color:#fff;
+}
+
+/* Subtle Demo Stream Link Bar */
+.demo-strip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11.5px;
+  color:var(--faint);
+  padding:0 2px;
+  flex-wrap:wrap;
+}
+.demo-strip span.demo-label{font-weight:500;color:var(--muted)}
+.demo-link{
+  background:none;
+  border:0;
+  padding:0;
+  font-size:11.5px;
+  color:var(--muted);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  transition:color .15s;
+}
+.demo-link:hover{color:#fff;text-decoration:underline}
+.demo-link::before{content:"•";color:var(--accent);font-size:14px;line-height:0}
+
+/* Sleek Horizontal Presets Rail */
+.presets-module{display:grid;gap:6px}
+.presets-rail{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  padding-bottom:2px;
+  -webkit-overflow-scrolling:touch;
+}
+.presets-rail::-webkit-scrollbar{display:none}
+.preset-chip{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  height:30px;
+  padding:0 11px;
+  border-radius:7px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--line);
+  color:var(--ink-2);
+  font-size:12px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .15s;
+  user-select:none;
+}
+.preset-chip:hover{background:rgba(255,255,255,0.08);color:#fff}
+.preset-chip.active{
+  background:rgba(255,85,32,0.12);
+  border-color:rgba(255,85,32,0.4);
+  color:#ff9838;
+  font-weight:600;
+}
+
+/* Composer Controls Bar */
+.composer-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  font-size:12px;
+  color:var(--muted);
+}
+.composer-footer-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.composer-footer-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+
+.switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:26px;height:15px;border-radius:999px;background:var(--line-strong);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(11px)}
+
+.tuning-btn{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:4px 9px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--ink-2);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all .15s;
+}
+.tuning-btn:hover{background:rgba(255,255,255,0.08);color:#fff}
+.tuning-btn svg{width:11px;height:11px;transition:transform .2s}
+.tuning-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.ai-status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--faint)}
+.dot.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+
+/* Modular Tabbed Studio Tuning Panel */
+.studio-tuning{
+  display:none;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  gap:12px;
+}
+.studio-tuning.open{display:grid}
+.tuning-nav{
+  display:flex;
+  gap:4px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:7px;
+  padding:2px;
+}
+.tuning-tab{
+  flex:1;
+  height:28px;
+  background:transparent;
+  border:0;
+  border-radius:5px;
+  font-size:11.5px;
+  font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+}
+.tuning-tab:hover{color:#fff}
+.tuning-tab.active{background:rgba(255,255,255,0.09);color:#fff;font-weight:600}
+.tuning-pane{display:none;gap:12px}
+.tuning-pane.active{display:grid}
+
+.field{display:grid;gap:6px}
+.field-label{font-size:12px;font-weight:600;color:var(--ink-2);display:flex;justify-content:space-between;align-items:baseline}
+.field-label a{color:var(--accent);font-weight:500;font-size:11px;text-decoration:none}
+.field-label a:hover{text-decoration:underline}
+
+.formats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.fmt{position:relative;cursor:pointer}
+.fmt input{position:absolute;opacity:0;pointer-events:none}
+.fmt-card{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:1px solid var(--line-strong);border-radius:7px;background:rgba(0,0,0,0.25);transition:all .15s}
+.fmt-card b{font-weight:600;font-size:12.5px;font-family:var(--mono);color:#fff}
+.fmt-card small{font-size:10.5px;color:var(--muted)}
+.fmt input:checked+.fmt-card{border-color:var(--accent);background:var(--accent-soft)}
+
+.seg{display:flex;flex-wrap:wrap;gap:3px;padding:2px;background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:7px;width:max-content;max-width:100%}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:4px 9px;border-radius:5px;font-size:11.5px;color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
+.seg span:hover{color:#fff}
+.seg input:checked+span{background:rgba(255,255,255,0.1);color:#fff}
+
+.input,.textarea,.select{
+  width:100%;
+  border:1px solid var(--line-strong);
+  border-radius:var(--r-sm);
+  background:rgba(0,0,0,0.35);
+  padding:7px 10px;
+  font-size:13px;
+  color:#fff;
+  outline:none;
+}
+.input:focus,.textarea:focus,.select:focus{border-color:rgba(255,255,255,0.35)}
+.textarea{resize:vertical;min-height:56px;line-height:1.45}
+.select{appearance:none;padding-right:28px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+.swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.swatch{position:relative;cursor:pointer}
+.swatch input{position:absolute;opacity:0;pointer-events:none}
+.swatch span{display:block;width:22px;height:22px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.4)}
+.swatch input:checked+span{box-shadow:0 0 0 2px var(--bg),0 0 0 3px #fff}
+.swatch-auto span{background:conic-gradient(#ffe500,#3dff6e,#7dd3fc,#ff4fd8,#ffe500)}
+
+/* Styles Preview */
+.styles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.style-opt{position:relative;cursor:pointer}
+.style-opt input{position:absolute;opacity:0;pointer-events:none}
+.style-card{display:block;border:1px solid var(--line-strong);border-radius:7px;overflow:hidden;background:rgba(0,0,0,0.3);transition:all .15s}
+.style-opt input:checked+.style-card{border-color:var(--accent)}
+.style-prev{height:54px;display:grid;place-items:center;background:linear-gradient(160deg,#18181e,#0e0e12);padding:0 6px;text-align:center;line-height:1.1}
+.style-name{display:block;font-size:11px;font-weight:600;padding:4px 6px;color:var(--ink-2);border-top:1px solid var(--line);background:rgba(0,0,0,0.2)}
+.pv-classic{font:900 13px "Arial Black",Arial,sans-serif;color:#fff;text-transform:uppercase;-webkit-text-stroke:2.5px #000;paint-order:stroke fill}
+.pv-bold{font:400 18px Impact,"Arial Narrow Bold",sans-serif;color:#fff;text-transform:uppercase;-webkit-text-stroke:3px #000;paint-order:stroke fill}
+.pv-clean{font:600 11.5px "Segoe UI",system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.7);padding:2px 6px;border-radius:4px}
+.pv-hi{color:var(--hi)}
+
+/* Platform Support Bar */
+.platform-strip{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:24px;
+  font-size:12px;
+  color:var(--muted);
+}
+.platform-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  padding:3px 10px;
+  border-radius:999px;
+  font-family:var(--mono);
+  font-size:11.5px;
+}
+
+/* Interactive Workspace */
+#workspace{display:none;padding:44px 0 24px;border-top:1px solid var(--line);position:relative}
+#workspace.show{display:block}
+.ws-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  background:rgba(18,18,22,0.8);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:12px 16px;
+}
+.ws-head .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:2px}
+.ws-head h2{font-size:17px;font-weight:700;margin:0;max-width:700px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ws-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+
+/* Pipeline Sidebar */
+.pipeline{
+  border:1px solid var(--line-strong);
+  border-radius:var(--r);
+  padding:12px;
+  background:rgba(18,18,22,0.9);
+  backdrop-filter:blur(16px);
+  position:sticky;
+  top:74px;
+}
+.pipeline-title{font-size:12px;font-weight:600;color:var(--ink);padding:4px 6px 8px;border-bottom:1px solid var(--line);margin-bottom:6px;display:flex;justify-content:space-between}
+.stage{display:flex;gap:8px;align-items:center;padding:7px 8px;border-radius:var(--r-sm);font-size:12.5px;color:var(--faint);transition:all .2s}
+.stage .ind{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex:none}
+.stage.active{color:#fff;background:rgba(255,255,255,0.06);font-weight:500}
+.stage.active .ind{border-color:var(--accent);border-right-color:transparent;animation:spin .8s linear infinite}
+.stage.done{color:var(--ink-2)}
+.stage.done .ind{background:var(--ok);border-color:var(--ok)}
+.stage.done .ind svg{width:9px;height:9px;color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress{height:4px;background:rgba(255,255,255,0.08);border-radius:999px;margin:10px 6px 6px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s ease}
+.pipeline .note{font-size:11px;color:var(--muted);padding:4px 6px}
+.alert{display:none;margin:6px 0;padding:8px 10px;border-radius:var(--r-sm);background:var(--err-soft);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-size:12px}
+
+/* Clip Cards Grid */
+.clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;justify-content:start}
+.clip{
+  border:1px solid var(--line-strong);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  background:var(--card);
+  display:flex;
+  flex-direction:column;
+  box-shadow:var(--shadow-card);
+  transition:transform .2s,border-color .2s;
+}
+.clip:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.22)}
+.player{position:relative;aspect-ratio:9/16;max-height:500px;background:#000;overflow:hidden;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.player video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+.badge{
+  position:absolute;
+  top:10px;
+  left:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  height:22px;
+  padding:0 7px;
+  border-radius:999px;
+  background:rgba(9,9,11,0.85);
+  backdrop-filter:blur(8px);
+  color:#fff;
+  font-size:11px;
+  font-weight:600;
+  border:1px solid rgba(255,255,255,0.15);
+}
+.badge-flame{color:#ff5520}
+.badge .bar{width:24px;height:3px;border-radius:2px;background:rgba(255,255,255,0.2);overflow:hidden}
+.badge .bar i{display:block;height:100%;background:var(--accent)}
+.time{position:absolute;bottom:10px;right:10px;font-size:10.5px;color:#fff;background:rgba(9,9,11,0.85);backdrop-filter:blur(8px);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.1)}
+.clip-body{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.clip-hook{font-weight:700;font-size:14px;line-height:1.35;color:#fff}
+.clip-cap{color:var(--muted);font-size:12px;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;color:var(--ink-2);background:rgba(255,255,255,0.06);border-radius:4px;padding:1px 6px;font-weight:500}
+.clip-actions{display:flex;gap:6px;margin-top:auto;padding-top:6px}
+.clip-actions .btn{height:30px;font-size:12px;flex:1}
+.skeleton{
+  border:1px dashed rgba(255,255,255,0.1);
+  border-radius:var(--r-lg);
+  aspect-ratio:9/19;
+  background:linear-gradient(110deg,#121216 8%,#18181e 18%,#121216 33%);
+  background-size:200% 100%;
+  animation:shineShimmer 1.5s linear infinite;
+}
+@keyframes shineShimmer{to{background-position-x:-200%}}
+
+/* Locked Pro Teaser */
+.locked{
+  border:1px solid rgba(245,158,11,0.2);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  background:rgba(18,18,22,0.7);
+  box-shadow:0 10px 24px rgba(0,0,0,0.5);
+  position:relative;
+}
+.locked .player{background:center/cover no-repeat #121216}
+.locked .player::after{content:"";position:absolute;inset:0;backdrop-filter:blur(16px);background:rgba(9,9,11,0.7)}
+.lock-center{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  color:#fff;
+  text-align:center;
+  padding:14px;
+}
+.lock-icon-wrap{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:rgba(245,158,11,0.15);
+  border:1px solid rgba(245,158,11,0.35);
+  display:grid;
+  place-items:center;
+  color:#f59e0b;
+}
+.lock-center b{font-size:13.5px;font-weight:700}
+.lock-center small{font-size:11px;color:var(--muted);max-width:180px}
+.upsell{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  border:1px solid rgba(255,85,32,0.25);
+  border-radius:var(--r-lg);
+  padding:16px 20px;
+  background:rgba(255,85,32,0.05);
+}
+.upsell b{font-size:14.5px;font-weight:700;color:#fff}
+.upsell p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+
+/* Common Section Styling */
+section{padding:72px 0;border-top:1px solid var(--line);position:relative}
+.kicker{font-size:11.5px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-family:var(--mono)}
+h2{font-size:clamp(25px,3.8vw,38px);letter-spacing:-.03em;line-height:1.15;font-weight:700;margin:0 0 10px;max-width:700px;color:#fff}
+.section-lede{color:var(--muted);font-size:15px;max-width:620px;margin:0 0 36px;line-height:1.55}
+
+/* Section 2: Interactive Studio Reframing Canvas (#canvas) */
+.canvas-module{display:grid;gap:24px}
+.canvas-modes-bar{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;
+  padding:4px;
+  max-width:640px;
+  margin:0 auto;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.canvas-modes-bar::-webkit-scrollbar{display:none}
+.canvas-mode-tab{
+  flex:1;
+  min-width:140px;
+  height:36px;
+  border:0;
+  background:transparent;
+  border-radius:7px;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+}
+.canvas-mode-tab:hover{color:#fff}
+.canvas-mode-tab.active{
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-weight:600;
+  box-shadow:0 1px 4px rgba(0,0,0,0.4);
+}
+
+.canvas-showcase{
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:36px;
+  align-items:center;
+}
+
+.canvas-card{
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:24px;
+  background:var(--card);
+  display:grid;
+  gap:16px;
+}
+.canvas-card h3{margin:0;font-size:18px;color:#fff}
+.canvas-card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.stat-box{background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:12px}
+.stat-val{font-size:20px;font-weight:700;color:#fff;font-family:var(--mono)}
+.stat-val.highlight{color:var(--ok)}
+.stat-label{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+.canvas-telemetry{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--faint);
+}
+.canvas-telemetry span{color:var(--ink-2);font-weight:500}
+
+/* Smartphone Mockup */
+.phone-mockup{
+  width:100%;
+  max-width:320px;
+  aspect-ratio:9/18;
+  margin:0 auto;
+  border:5px solid #27272a;
+  border-radius:34px;
+  background:#000;
+  box-shadow:0 24px 60px -12px rgba(0,0,0,0.9),0 0 0 1px rgba(255,255,255,0.1);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.phone-notch{
+  position:absolute;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  width:74px;
+  height:13px;
+  background:#27272a;
+  border-radius:999px;
+  z-index:20;
+}
+.phone-screen{
+  width:100%;
+  height:100%;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:#09090b;
+}
+
+/* Mode 1: Split Screen */
+.phone-split{display:flex;flex-direction:column;height:100%}
+.phone-webcam{
+  height:40%;
+  background:linear-gradient(135deg,#1f1a2e,#111827);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-bottom:2px solid var(--accent);
+  overflow:hidden;
+}
+.webcam-avatar{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.2);
+  background:url('https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80') center/cover;
+}
+.streamer-pill{
+  position:absolute;
+  top:22px;
+  left:12px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.7);
+  font-size:10px;
+  font-family:var(--mono);
+  color:#fff;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.streamer-pill .rec{width:5px;height:5px;border-radius:50%;background:#ef4444;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.vu-meter{position:absolute;bottom:8px;right:12px;display:flex;gap:2px;align-items:flex-end;height:14px}
+.vu-bar{width:3px;background:var(--ok);border-radius:1px;animation:vu 1s infinite alternate}
+.vu-bar:nth-child(2){animation-delay:.2s}
+.vu-bar:nth-child(3){animation-delay:.4s}
+.vu-bar:nth-child(4){animation-delay:.1s}
+@keyframes vu{0%{height:3px}100%{height:14px}}
+
+.phone-gameplay{
+  height:60%;
+  background:linear-gradient(180deg,#0f172a,#020617);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+.gameplay-hud{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:10.5px;color:#f59e0b;background:rgba(0,0,0,0.6);padding:2px 5px;border-radius:4px}
+.phone-caption-overlay{position:absolute;bottom:36px;left:12px;right:12px;text-align:center;pointer-events:none}
+.karaoke-text{
+  display:inline-block;
+  font-family:"Arial Black",sans-serif;
+  font-size:16px;
+  text-transform:uppercase;
+  line-height:1.2;
+  color:#fff;
+  -webkit-text-stroke:2.5px #000;
+  paint-order:stroke fill;
+}
+.karaoke-text .k-hi{color:#ffe500}
+
+/* Mode 2: Kinetic Pill */
+.phone-kinetic{
+  display:none;
+  height:100%;
+  background:radial-gradient(circle at 50% 30%,#1e1b4b,#09090b);
+  position:relative;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  text-align:center;
+}
+.podcast-pill-box{
+  background:rgba(0,0,0,0.8);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:10px;
+  padding:10px 14px;
+  margin-top:auto;
+  margin-bottom:50px;
+}
+.podcast-words{font-size:13.5px;font-weight:700;color:#fff;line-height:1.4}
+.podcast-words .hi{color:#38bdf8;text-decoration:underline}
+
+/* Mode 3: Raw 16:9 Letterbox */
+.phone-raw{display:none;height:100%;background:#000;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.raw-video-box{
+  width:100%;
+  aspect-ratio:16/9;
+  background:linear-gradient(135deg,#18181b,#27272a);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-top:1px solid #3f3f46;
+  border-bottom:1px solid #3f3f46;
+  color:var(--faint);
+  font-size:11.5px;
+  font-family:var(--mono);
+}
+.raw-warning-badge{
+  position:absolute;
+  top:44px;
+  left:14px;
+  right:14px;
+  background:rgba(239,68,68,0.15);
+  border:1px solid rgba(239,68,68,0.4);
+  border-radius:7px;
+  padding:7px 10px;
+  color:#fca5a5;
+  font-size:11px;
+  text-align:center;
+  line-height:1.35;
+}
+
+/* Section 3: Before & After Showcase (#transformation) */
+.transformation-module{display:grid;gap:24px}
+.transformation-nav{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:9px;
+  padding:3px;
+  max-width:440px;
+  margin:0 auto;
+}
+.transformation-tab{
+  flex:1;
+  height:32px;
+  background:transparent;
+  border:0;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+}
+.transformation-tab:hover{color:#fff}
+.transformation-tab.active{background:rgba(255,255,255,0.09);color:#fff;font-weight:600}
+
+.transformation-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  align-items:stretch;
+}
+.transformation-card{
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:20px;
+  background:var(--card);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.transformation-header{display:flex;align-items:center;justify-content:space-between}
+.tag-before{
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  color:var(--muted);
+}
+.tag-after{
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  border:1px solid rgba(255,85,32,0.3);
+}
+.transformation-preview-box{
+  aspect-ratio:16/9;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+  background:#050508;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+}
+.transformation-preview-vertical{
+  aspect-ratio:16/9;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+  background:#050508;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,85,32,0.3);
+  background:linear-gradient(135deg,rgba(255,85,32,0.04),rgba(18,18,22,0.9));
+}
+.preview-badge{
+  position:absolute;
+  bottom:8px;
+  left:8px;
+  background:rgba(0,0,0,0.75);
+  font-size:10.5px;
+  font-family:var(--mono);
+  padding:2px 6px;
+  border-radius:4px;
+  color:#fff;
+}
+
+/* Section 4: Architecture Matrix Section (#architecture) */
+.matrix-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.matrix-card{
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:22px;
+  background:var(--card);
+  transition:border-color .2s;
+  display:flex;
+  flex-direction:column;
+}
+.matrix-card:hover{border-color:rgba(255,255,255,0.2)}
+.matrix-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.matrix-top svg{color:var(--accent);width:20px;height:20px}
+.matrix-tag{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--muted)}
+.matrix-card h3{margin:0 0 6px;font-size:15.5px;color:#fff}
+.matrix-card p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.5;flex:1}
+.matrix-spec{
+  border-top:1px solid var(--line);
+  padding-top:10px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--faint);
+  display:flex;
+  justify-content:space-between;
+}
+.matrix-spec b{color:var(--ink-2);font-weight:500}
+
+/* Section 5: Trust & Process Workflow (#trust) */
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.trust-card{
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:20px;
+  background:var(--card);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  position:relative;
+}
+.trust-step{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:700;
+  color:var(--accent);
+}
+.trust-card h3{margin:0;font-size:14.5px;color:#fff}
+.trust-card p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}
+
+/* Section 6: Pricing Grid (#pricing) */
+.billing-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:40px;
+  font-size:13px;
+  font-weight:500;
+}
+.toggle-chip{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1080px;margin:0 auto}
+.plan{
+  border:1px solid var(--line-strong);
+  border-radius:var(--r-lg);
+  padding:26px 22px;
+  background:var(--card);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  transition:all .2s;
+}
+.plan:hover{border-color:rgba(255,255,255,0.22);transform:translateY(-2px)}
+.plan.featured{
+  border-color:var(--accent);
+  background:linear-gradient(160deg,rgba(255,85,32,0.06),rgba(18,18,22,0.95));
+}
+.plan-badge{
+  position:absolute;
+  top:-11px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--accent);
+  color:#fff;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:2px 10px;
+  border-radius:999px;
+  font-family:var(--mono);
+}
+.plan-head h3{margin:0;font-size:16.5px;font-weight:700}
+.price{font-size:38px;font-weight:700;letter-spacing:-.03em;margin:14px 0 4px;color:#fff}
+.price small{font-size:12.5px;color:var(--muted);font-weight:400;letter-spacing:0}
+.plan .desc{color:var(--muted);font-size:12.5px;margin:0 0 18px;min-height:36px}
+.plan ul{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:9px;font-size:12.5px;color:var(--ink-2)}
+.plan li{display:flex;gap:8px;align-items:flex-start}
+.plan li svg{width:14px;height:14px;color:var(--ok);flex:none;margin-top:2px}
+.plan .btn{margin-top:auto}
+
+/* Section 7: FAQ Accordion (#faq) */
+.faq-grid{display:grid;gap:10px;max-width:820px;margin:0 auto}
+details.faq-item{
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:var(--card);
+  padding:14px 18px;
+  transition:border-color .2s;
+}
+details.faq-item:hover{border-color:rgba(255,255,255,0.2)}
+details.faq-item summary{font-weight:600;font-size:13.5px;cursor:pointer;color:#fff;user-select:none;display:flex;justify-content:space-between;align-items:center}
+details.faq-item summary::-webkit-details-marker{display:none}
+details.faq-item summary::after{content:"+";font-size:16px;color:var(--muted);font-family:var(--mono)}
+details.faq-item[open] summary::after{content:"–"}
+details.faq-item p{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.55}
+
+/* Section 8: SaaS Footer */
+footer.footer{
+  border-top:1px solid var(--line);
+  padding:60px 0 36px;
+  background:rgba(9,9,11,0.95);
+  font-size:13px;
+  color:var(--muted);
+}
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.5fr repeat(3,1fr);
+  gap:32px;
+  margin-bottom:48px;
+}
+.footer-col h4{
+  margin:0 0 14px;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-family:var(--mono);
+}
+.footer-col ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.footer-col a{color:var(--muted);transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:12px;
+  color:var(--faint);
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translate(-50%,20px);
+  opacity:0;
+  background:rgba(24,24,27,0.95);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.18);
+  color:#fff;
+  font-size:12.5px;
+  font-weight:500;
+  padding:8px 15px;
+  border-radius:999px;
+  transition:all .25s ease;
+  pointer-events:none;
+  z-index:999;
+  box-shadow:0 10px 30px rgba(0,0,0,0.8);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Confetti Canvas */
+#confettiCanvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+  width:100vw;
+  height:100vh;
+}
+
+/* Modals */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);
+  z-index:1000;
+  display:none;
+  place-items:center;
+  padding:16px;
+}
+.modal-overlay.open{display:grid}
+.modal-card{
+  background:var(--card);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:var(--r-xl);
+  max-width:500px;
+  width:100%;
+  padding:24px;
+  box-shadow:var(--shadow-lg);
+  position:relative;
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px}
+.modal-close:hover{color:#fff}
+
+.modal-tabs{
+  display:flex;
+  gap:4px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:3px;
+  margin-bottom:14px;
+}
+.modal-tab-btn{
+  flex:1;
+  height:32px;
+  border:0;
+  background:transparent;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .15s;
+}
+.modal-tab-btn.active{background:rgba(255,255,255,0.1);color:#fff;font-weight:600}
+.tier-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tier-card{
+  position:relative;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  padding:12px;
+  background:rgba(0,0,0,0.3);
+  cursor:pointer;
+  transition:all .15s;
+  text-align:left;
+}
+.tier-card:hover{border-color:rgba(255,255,255,0.3)}
+.tier-card input{position:absolute;opacity:0;pointer-events:none}
+.tier-card.selected{border-color:var(--accent);background:rgba(255,85,32,0.08)}
+.tier-card b{display:block;font-size:12.5px;color:#fff}
+.tier-card .tier-price{font-size:19px;font-weight:700;color:#fff;margin:2px 0}
+.tier-card .tier-price small{font-size:11px;color:var(--muted);font-weight:400}
+.tier-card small.tier-desc{font-size:10.5px;color:var(--muted);line-height:1.3;display:block}
+.tier-badge{
+  position:absolute;
+  top:-7px;
+  right:8px;
+  background:var(--accent);
+  color:#fff;
+  font-size:8.5px;
+  font-weight:700;
+  font-family:var(--mono);
+  text-transform:uppercase;
+  padding:1px 5px;
+  border-radius:4px;
+}
+.gateway-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.gateway-card{
+  position:relative;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  padding:10px;
+  background:rgba(0,0,0,0.25);
+  cursor:pointer;
+  transition:all .15s;
+  text-align:left;
+}
+.gateway-card:hover{border-color:rgba(255,255,255,0.3)}
+.gateway-card input{position:absolute;opacity:0;pointer-events:none}
+.gateway-card.selected{border-color:var(--accent);background:rgba(255,85,32,0.08)}
+.gateway-card .gw-title{font-size:12px;font-weight:600;color:#fff;display:flex;align-items:center;gap:6px}
+.gateway-card .gw-desc{font-size:10px;color:var(--muted);margin-top:2px;display:block;line-height:1.3}
+.admin-config-panel{
+  background:rgba(255,255,255,0.02);
+  border:1px dashed rgba(255,255,255,0.15);
+  border-radius:8px;
+  padding:12px;
+  margin-top:12px;
+  display:none;
+}
+.admin-config-panel.open{display:block}
+.guarantee-strip{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  font-size:11px;
+  color:var(--faint);
+  margin-top:12px;
+}
+.guarantee-strip span{display:inline-flex;align-items:center;gap:4px}
+.guarantee-strip svg{width:12px;height:12px;color:var(--ok)}
+.pro-code-row{display:flex;gap:8px}
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width:980px){
+  .canvas-showcase{grid-template-columns:1fr;gap:24px}
+  .phone-mockup{max-width:280px}
+  .transformation-grid{grid-template-columns:1fr;gap:18px}
+  .matrix-grid{grid-template-columns:1fr;gap:14px}
+  .trust-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .plans{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .ws-grid{grid-template-columns:1fr;gap:18px}
+  .pipeline{position:static;max-height:none}
+}
+
+@media (max-width:768px){
+  .nav-links{display:none}
+  .formats-row{grid-template-columns:repeat(2,1fr)}
+  .styles-grid{grid-template-columns:1fr}
+}
+
+@media (max-width:640px){
+  .container{padding:0 16px}
+  .hero{padding:36px 0 20px}
+  section{padding:48px 0}
+  h1{font-size:clamp(25px,7.2vw,34px)}
+  .hero-lede{font-size:14px;margin-bottom:20px}
+  .hero-actions{flex-direction:column;width:100%}
+  .hero-actions .btn{width:100%}
+
+  .composer-row{
+    flex-direction:column;
+    align-items:stretch;
+    background:transparent;
+    border:none;
+    padding:0;
+    gap:8px;
+  }
+  .composer-input-wrap{
+    background:rgba(0,0,0,0.45);
+    border:1px solid var(--line-strong);
+    border-radius:9px;
+    padding:2px 8px;
+  }
+  .composer input[type=url]{height:42px;font-size:13.5px}
+  #submit{width:100%;height:42px;border-radius:9px;justify-content:center}
+
+  .composer-footer{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+  .composer-footer-left{justify-content:space-between}
+  .composer-footer-right{justify-content:space-between;padding-top:4px}
+
+  .clips{grid-template-columns:1fr;justify-items:center}
+  .clip,.locked,.skeleton{width:100%;max-width:330px}
+
+  .canvas-modes-bar{justify-content:flex-start}
+  .stats-grid{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:24px}
+  .tier-cards{grid-template-columns:1fr}
+  .gateway-cards{grid-template-columns:1fr}
+  .pro-code-row{flex-direction:column}
+  .pro-code-row .btn{width:100%;justify-content:center}
+}
+
+@media (max-width:480px){
+  .nav .container{height:52px;padding:0 14px}
+  #navCta{display:none}
+  .brand-tag{display:none}
+  .tab-btn{font-size:11.5px;padding:0 6px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<!-- Top Navbar -->
+<header class="nav" id="nav">
+  <div class="container">
+    <a href="#" class="brand" aria-label="ClipBest Home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+      </span>
+      <span>ClipBest Studio</span>
+      <span class="brand-tag">v2.4</span>
+    </a>
+    <nav class="nav-links" aria-label="Main Navigation">
+      <a href="#canvas">Showcase</a>
+      <a href="#transformation">Before & After</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#trust">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <button type="button" class="pro-pill" id="navProBtn" aria-label="Upgrade to Pro">
+        ⚡ <span class="nav-pro-text">Pro Studio</span>
+      </button>
+      <a href="#top" class="btn btn-primary" id="navCta">Open Studio</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        <b>STUDIO ENGINE v2.4</b> · REPLAY HEATMAP GPU PIPELINE
+      </div>
+      <h1>Your next viral clip is hiding in your stream.</h1>
+      <p class="hero-lede">Find the best moments. Create engaging Shorts. Export in seconds.</p>
+
+      <div class="hero-actions">
+        <a href="#composerCard" class="btn btn-accent btn-lg" onclick="focusComposerInput()">Generate My Shorts →</a>
+        <a href="#canvas" class="btn btn-outline btn-lg">See How It Works</a>
+      </div>
+
+      <!-- Studio Command Center (Composer) -->
+      <div class="composer-wrap" id="composerCard">
+        <form class="composer" id="form" novalidate>
+          <!-- Source Segment Tabs -->
+          <div class="source-tabs" role="tablist">
+            <button type="button" class="tab-btn active" id="tabUrl" role="tab" aria-selected="true">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-.8.8"/><path d="M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l.8-.8"/></svg>
+              <span>YouTube / Stream URL</span>
+            </button>
+            <button type="button" class="tab-btn" id="tabUpload" role="tab" aria-selected="false">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 13v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M14 7l-4-4-4 4M10 3v11"/></svg>
+              <span>Upload Video File (.mp4, .mov)</span>
+            </button>
+          </div>
+
+          <!-- URL Input Row -->
+          <div class="composer-row" id="rowUrl">
+            <div class="composer-input-wrap">
+              <svg class="lead" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2"/></svg>
+              <label for="url" class="sr">Video link</label>
+              <input id="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste YouTube link or Twitch/Kick VOD URL..." required>
+            </div>
+            <button class="btn btn-accent btn-lg" id="submit" type="submit">
+              <span>Generate My Shorts</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </button>
+          </div>
+
+          <!-- File Dropzone -->
+          <div id="dropZone" class="dropzone">
+            <input type="file" id="videoFile" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" hidden>
+            <div class="drop-content" id="dropContent">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <span><b>Drop your video recording here</b> or click to select</span>
+              <small>MP4, MOV, MKV up to 1 GB · Offline hardware accelerated</small>
+            </div>
+            <div id="fileInfo" style="display:none;margin-top:8px">
+              <span class="file-selected" id="fileName">video.mp4</span>
+              <div style="margin-top:10px">
+                <button class="btn btn-accent btn-lg" id="uploadSubmit" type="button">
+                  Clip Video Recording
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subtle Demo Stream Link Bar -->
+          <div class="demo-strip" id="demoStrip">
+            <span class="demo-label">Try demo stream:</span>
+            <button type="button" class="demo-link" data-url="https://www.youtube.com/watch?v=k1BneeJTDcU" data-preset="streamer">GTA V RP (Split Cam)</button>
+            <button type="button" class="demo-link" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk" data-preset="podcast">Joe Rogan (Clean Pill)</button>
+            <button type="button" class="demo-link" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" data-preset="hype">Esports Clutch (Impact)</button>
+          </div>
+
+          <!-- Sleek Horizontal Presets Rail -->
+          <div class="presets-module">
+            <div class="presets-rail">
+              <button type="button" class="preset-chip active" data-preset="streamer">
+                <span>🎮</span> Streamer Split (Webcam + Game)
+              </button>
+              <button type="button" class="preset-chip" data-preset="hype">
+                <span>🔥</span> Fast Gaming (Impact)
+              </button>
+              <button type="button" class="preset-chip" data-preset="podcast">
+                <span>🎙️</span> Podcast & Talk (Clean Pill)
+              </button>
+              <button type="button" class="preset-chip" data-preset="funny">
+                <span>⚡</span> Reaction (Auto-Zoom)
+              </button>
+            </div>
+          </div>
+
+          <!-- Composer Footer Controls -->
+          <div class="composer-footer">
+            <div class="composer-footer-left">
+              <button type="button" class="tuning-btn" id="toggleSettings" aria-expanded="false" aria-controls="settings">
+                Studio Tuning
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
+              </button>
+              <span class="ai-status"><span class="dot" id="aiDot"></span><span id="aiText">Auto AI</span></span>
+              <span class="pill" id="proBadge" style="display:none;background:rgba(255,85,32,0.15);color:#ff9838;border:1px solid rgba(255,85,32,0.3);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600">👑 Pro</span>
+              <span id="planLabel" style="font-size:11px;color:var(--faint);display:none">Free Starter</span>
+              <input type="hidden" id="proCode" name="proCode">
+              <button type="button" id="verifyCodeBtn" style="display:none"></button>
+            </div>
+
+            <div class="composer-footer-right">
+              <label class="switch"><input type="checkbox" id="optCaptions" checked> Kinetic Captions</label>
+              <label class="switch"><input type="checkbox" id="optHooks" checked> AI Hooks</label>
+            </div>
+          </div>
+
+          <!-- Modular Tabbed Studio Tuning Panel -->
+          <div class="studio-tuning" id="settings">
+            <div class="tuning-nav" role="tablist">
+              <button type="button" class="tuning-tab active" id="tabTuneFraming" role="tab" aria-selected="true">1. Framing & Layout</button>
+              <button type="button" class="tuning-tab" id="tabTuneCaptions" role="tab" aria-selected="false">2. Captions & Style</button>
+              <button type="button" class="tuning-tab" id="tabTuneAi" role="tab" aria-selected="false">3. AI & Branding</button>
+            </div>
+
+            <!-- Pane 1: Framing & Layout -->
+            <div class="tuning-pane active" id="paneTuneFraming">
+              <div class="field">
+                <span class="field-label">Target Format</span>
+                <div class="formats-row" role="radiogroup">
+                  <label class="fmt"><input type="radio" name="format" value="9:16" checked><span class="fmt-card"><b>9:16</b><small>TikTok · Shorts</small></span></label>
+                  <label class="fmt"><input type="radio" name="format" value="4:5"><span class="fmt-card"><b>4:5</b><small>Instagram</small></span></label>
+                  <label class="fmt"><input type="radio" name="format" value="1:1"><span class="fmt-card"><b>1:1</b><small>Square</small></span></label>
+                  <label class="fmt"><input type="radio" name="format" value="16:9"><span class="fmt-card"><b>16:9</b><small>YouTube</small></span></label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">Framing Engine</span>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                  <div class="seg" role="radiogroup">
+                    <label><input type="radio" name="framing" value="split" checked><span>Split (Facecam Stack)</span></label>
+                    <label><input type="radio" name="framing" value="fit"><span>Fit (Blur Background)</span></label>
+                    <label><input type="radio" name="framing" value="fill"><span>Fill (Center Crop)</span></label>
+                  </div>
+                  <label class="switch"><input type="checkbox" id="optZoom"> Punch-in zoom</label>
+                </div>
+              </div>
+
+              <div class="field" id="facecamOptions">
+                <span class="field-label">Webcam Location in Original Stream</span>
+                <div class="seg" role="radiogroup">
+                  <label><input type="radio" name="facecamPos" value="auto" checked><span>Auto-Detect</span></label>
+                  <label><input type="radio" name="facecamPos" value="bottom-left"><span>Bottom-Left (Twitch standard)</span></label>
+                  <label><input type="radio" name="facecamPos" value="bottom-right"><span>Bottom-Right</span></label>
+                  <label><input type="radio" name="facecamPos" value="top-left"><span>Top-Left</span></label>
+                  <label><input type="radio" name="facecamPos" value="center"><span>Center</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pane 2: Captions & Style -->
+            <div class="tuning-pane" id="paneTuneCaptions">
+              <div class="field">
+                <span class="field-label">Subtitle Preset Style</span>
+                <div class="styles-grid" role="radiogroup">
+                  <label class="style-opt"><input type="radio" name="capStyle" value="classic" checked>
+                    <span class="style-card"><span class="style-prev" style="--hi:#FFE500"><span class="pv-classic"><span class="pv-hi">NO</span> WAY THEY</span></span><span class="style-name">Classic Yellow</span></span></label>
+                  <label class="style-opt"><input type="radio" name="capStyle" value="bold">
+                    <span class="style-card"><span class="style-prev" style="--hi:#3DFF6E"><span class="pv-bold"><span class="pv-hi">NO</span> WAY</span></span><span class="style-name">Impact Green</span></span></label>
+                  <label class="style-opt"><input type="radio" name="capStyle" value="clean">
+                    <span class="style-card"><span class="style-prev" style="--hi:#7DD3FC"><span class="pv-clean"><span class="pv-hi">no</span> way they actually</span></span><span class="style-name">Podcast Pill</span></span></label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">Word Highlight Color Tint</span>
+                <div class="swatches" role="radiogroup">
+                  <label class="swatch swatch-auto" title="Default"><input type="radio" name="capColor" value="" checked><span></span><span class="sr">Default</span></label>
+                  <label class="swatch" title="Electric Yellow"><input type="radio" name="capColor" value="#FFE500"><span style="--c:#FFE500"></span><span class="sr">Yellow</span></label>
+                  <label class="swatch" title="Neon Green"><input type="radio" name="capColor" value="#3DFF6E"><span style="--c:#3DFF6E"></span><span class="sr">Green</span></label>
+                  <label class="swatch" title="Sky Cyan"><input type="radio" name="capColor" value="#7DD3FC"><span style="--c:#7DD3FC"></span><span class="sr">Cyan</span></label>
+                  <label class="swatch" title="Hot Pink"><input type="radio" name="capColor" value="#FF4FD8"><span style="--c:#FF4FD8"></span><span class="sr">Pink</span></label>
+                  <label class="swatch" title="Flame Orange"><input type="radio" name="capColor" value="#FF7A1A"><span style="--c:#FF7A1A"></span><span class="sr">Orange</span></label>
+                  <label class="swatch" title="Crimson Red"><input type="radio" name="capColor" value="#FF3B3B"><span style="--c:#FF3B3B"></span><span class="sr">Red</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pane 3: AI & Branding -->
+            <div class="tuning-pane" id="paneTuneAi">
+              <div class="field">
+                <span class="field-label">AI Hook Packaging Tone</span>
+                <div class="seg" role="radiogroup">
+                  <label><input type="radio" name="style" value="hype" checked><span>Hype</span></label>
+                  <label><input type="radio" name="style" value="funny"><span>Funny</span></label>
+                  <label><input type="radio" name="style" value="mystery"><span>Mystery</span></label>
+                  <label><input type="radio" name="style" value="story"><span>Story</span></label>
+                  <label><input type="radio" name="style" value="informative"><span>Informative</span></label>
+                </div>
+              </div>
+
+              <div class="field" id="fieldBrand">
+                <span class="field-label">
+                  <span>Custom Social Handle Overlay (Pro)</span>
+                  <span class="counter" id="brandStatus" style="font-size:11px">Free burns watermark</span>
+                </span>
+                <div class="pro-code-row">
+                  <input class="input" id="customBrand" type="text" maxlength="40" placeholder="e.g. @FaZe_Clan or twitch.tv/streamer" spellcheck="false" autocomplete="off">
+                  <button type="button" class="btn btn-sm" id="brandUnlockBtn" style="flex:none" onclick="openModal('pro')">Unlock in Pro</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">AI Model Provider <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" id="keyLink">Get Gemini API Key</a></span>
+                <div style="display:grid;grid-template-columns:160px 1fr;gap:6px">
+                  <select class="select" id="provider">
+                    <option value="">Default (Fast Server Pipeline)</option>
+                    <option value="gemini">Google Gemini (Free Tier)</option>
+                    <option value="claude">Anthropic Claude</option>
+                    <option value="openai">OpenAI GPT</option>
+                  </select>
+                  <input class="input mono" id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Optional BYO API Key" disabled>
+                </div>
+                <label class="check" style="font-size:11.5px;color:var(--muted);margin-top:2px"><input type="checkbox" id="rememberKey"> Remember key in this browser</label>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="instructions">Custom Instructions <span class="counter" id="instrCount" style="font-size:10.5px">0/1000</span></label>
+                <textarea class="textarea" id="instructions" maxlength="1000" placeholder="e.g. Focus on clutch moments, write short 4-word hooks, gamer slang is encouraged."></textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Platform Support Bar -->
+      <div class="platform-strip">
+        <span class="platform-pill">YouTube VODs</span>
+        <span class="platform-pill">Twitch Streams</span>
+        <span class="platform-pill">Kick Clips</span>
+        <span class="platform-pill">MP4 / MOV / MKV (up to 1 GB)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Live Workspace Section -->
+  <div id="workspace">
+    <div class="container">
+      <div class="ws-head">
+        <div class="ws-title-wrap">
+          <div class="label" id="wsLabel">Processing Video</div>
+          <h2 id="wsTitle">Fetching stream data…</h2>
+        </div>
+        <div class="ws-actions">
+          <a class="btn btn-accent" id="zipBtn" href="#" style="display:none">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>
+            Download All (.ZIP)
+          </a>
+          <a class="btn" id="csvBtn" href="#" style="display:none" title="Download CSV manifest for Buffer, Metricool, and TikTok scheduling">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7L9 2z"/><polyline points="9 2 9 7 14 7"/></svg>
+            Export CSV
+          </a>
+          <button class="btn" id="newBtn" type="button">New Video</button>
+        </div>
+      </div>
+
+      <div class="ws-grid">
+        <aside class="pipeline" aria-live="polite">
+          <div class="pipeline-title">
+            <span>Pipeline Progress</span>
+            <span class="mono" id="pctLabel">0%</span>
+          </div>
+          <div class="stage" data-s="0"><span class="ind"></span>1. Fetch stream info</div>
+          <div class="stage" data-s="1"><span class="ind"></span>2. Scan viewer heatmap</div>
+          <div class="stage" data-s="2"><span class="ind"></span>3. Transcribe speech</div>
+          <div class="stage" data-s="3"><span class="ind"></span>4. AI hook packaging</div>
+          <div class="stage" data-s="4"><span class="ind"></span>5. Render GPU clips</div>
+          <div class="progress"><i id="bar"></i></div>
+          <div class="note" id="note">Scanning for high-energy moments...</div>
+          <div class="warn" id="warn" role="status"></div>
+          <div class="alert" id="alert" role="alert"></div>
+        </aside>
+
+        <div class="clips" id="clips"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Interactive Studio Reframing Canvas (#canvas) -->
+  <section id="canvas">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:28px">
+        <div class="kicker">Interactive Product Showcase</div>
+        <h2>Studio-Grade 9:16 Recomposition</h2>
+        <p class="section-lede" style="margin:0 auto">Watch how ClipBest takes raw horizontal 16:9 stream footage and recomposes it into viral vertical content in real time.</p>
+      </div>
+
+      <div class="canvas-module">
+        <!-- Segmented Mode Bar on Top -->
+        <div class="canvas-modes-bar" role="tablist">
+          <button type="button" class="canvas-mode-tab active" id="tabModeSplit" onclick="switchCanvasMode('split')">
+            <span>🎮</span> Streamer Webcam + Gameplay Split
+          </button>
+          <button type="button" class="canvas-mode-tab" id="tabModeKinetic" onclick="switchCanvasMode('kinetic')">
+            <span>⚡</span> Kinetic Subtitles
+          </button>
+          <button type="button" class="canvas-mode-tab" id="tabModeRaw" onclick="switchCanvasMode('raw')">
+            <span>📺</span> Raw 16:9 Stream
+          </button>
+        </div>
+
+        <!-- 2-Column Showcase (Specs Left, Phone Right) -->
+        <div class="canvas-showcase">
+          <!-- Insights Card Left -->
+          <div class="canvas-card" id="canvasInsights">
+            <div>
+              <span class="kicker" id="canvasKicker" style="font-size:10.5px">LAYOUT ENGINE</span>
+              <h3 id="canvasTitle">Streamer Webcam & Gameplay Split</h3>
+            </div>
+            <p id="canvasDesc">Isolates corner webcam from Twitch/Kick VODs and stacks it on top of 1080p gameplay with live audio VU meters. Zero letterboxing.</p>
+
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-val highlight" id="statVal1">+280%</div>
+                <div class="stat-label" id="statLabel1">Viewer Completion Rate</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val" id="statVal2">100%</div>
+                <div class="stat-label" id="statLabel2">Mobile Screen Coverage</div>
+              </div>
+            </div>
+
+            <div class="canvas-telemetry">
+              <div>Encoder: <span id="telemetryEnc">NVENC / AMF 60fps</span></div>
+              <div>Audio Sync: <span>0.0ms Lock</span></div>
+              <div>Bitrate: <span>8500 kbps (CRF 19)</span></div>
+            </div>
+
+            <div>
+              <button type="button" class="btn btn-sm btn-accent" id="applyCanvasPresetBtn" onclick="applyPresetFromCanvas()">
+                Apply This Preset in Studio ↑
+              </button>
+            </div>
+          </div>
+
+          <!-- Smartphone Mockup Right -->
+          <div>
+            <div class="phone-mockup">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <!-- Mode 1: Split Screen -->
+                <div class="phone-split" id="viewSplit">
+                  <div class="phone-webcam">
+                    <div class="streamer-pill"><span class="rec"></span> LIVE @alex_streamer</div>
+                    <div class="webcam-avatar"></div>
+                    <div class="vu-meter">
+                      <div class="vu-bar"></div>
+                      <div class="vu-bar"></div>
+                      <div class="vu-bar"></div>
+                      <div class="vu-bar"></div>
+                    </div>
+                  </div>
+                  <div class="phone-gameplay">
+                    <div class="gameplay-hud">CLUTCH 1v4</div>
+                    <div class="phone-caption-overlay">
+                      <div class="karaoke-text">
+                        <span class="k-hi">NO</span> <span>WAY</span> <span>WE</span> <span class="k-hi">HIT THAT!</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mode 2: Kinetic Subtitles -->
+                <div class="phone-kinetic" id="viewKinetic">
+                  <div class="podcast-pill-box">
+                    <div class="podcast-words">
+                      "The difference between <span class="hi">100k views</span> and 10 million is the first three seconds."
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mode 3: Raw 16:9 Letterboxed -->
+                <div class="phone-raw" id="viewRaw">
+                  <div class="raw-warning-badge">
+                    ⚠️ 68% of mobile viewers swipe away when horizontal videos leave massive black bars.
+                  </div>
+                  <div class="raw-video-box">
+                    16:9 Horizontal Stream (Wasted Space)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Before & After Showcase (#transformation) -->
+  <section id="transformation">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:28px">
+        <div class="kicker">Real Visual Comparison</div>
+        <h2>From Long Streams to Ready-to-Post Shorts.</h2>
+        <p class="section-lede" style="margin:0 auto">See how raw horizontal gameplay and conversation footage transforms into polished, high-retention 9:16 vertical clips.</p>
+      </div>
+
+      <div class="transformation-module">
+        <div class="transformation-nav" role="tablist">
+          <button type="button" class="transformation-tab active" id="tabTransformGaming" onclick="switchTransformExample('gaming')">Gaming Stream VOD</button>
+          <button type="button" class="transformation-tab" id="tabTransformPodcast" onclick="switchTransformExample('podcast')">Podcast / Interview</button>
+        </div>
+
+        <div class="transformation-grid">
+          <!-- Before Card -->
+          <div class="transformation-card">
+            <div class="transformation-header">
+              <span class="tag-before">ORIGINAL HORIZONTAL (16:9)</span>
+              <span class="mono" style="font-size:11px;color:var(--faint)">Raw Capture</span>
+            </div>
+            <div class="transformation-preview-box" id="transformBeforeBox">
+              <div style="text-align:center;padding:20px;color:var(--muted)">
+                <div style="font-size:24px;margin-bottom:6px">📺</div>
+                <b id="transformBeforeTitle" style="color:#fff;font-size:13.5px">3-Hour Twitch VOD</b>
+                <p id="transformBeforeDesc" style="margin:4px 0 0;font-size:12px;color:var(--faint)">Tiny corner webcam, unreadable mobile UI, 65% black bars when viewed on phones.</p>
+              </div>
+              <span class="preview-badge" id="transformBeforeBadge">1920x1080 · Raw 16:9</span>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.45" id="transformBeforeNote">
+              Unedited footage has prolonged downtime and lacks mobile typography. Viewers swipe away within the first 3 seconds.
+            </div>
+          </div>
+
+          <!-- After Card -->
+          <div class="transformation-card" style="border-color:rgba(255,85,32,0.35);background:linear-gradient(145deg,rgba(255,85,32,0.04),rgba(18,18,22,0.95))">
+            <div class="transformation-header">
+              <span class="tag-after">CLIPBEST FINISHED SHORT (9:16)</span>
+              <span class="mono" style="font-size:11px;color:var(--ok)">Ready To Post</span>
+            </div>
+            <div class="transformation-preview-vertical" id="transformAfterBox">
+              <div style="text-align:center;padding:16px;color:#fff">
+                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,85,32,0.15);padding:3px 8px;border-radius:999px;color:#ff9838;font-size:11px;margin-bottom:8px">
+                  <span>⚡</span> Peak Heatmap Moment #1
+                </div>
+                <div id="transformAfterTitle" style="font-size:14px;font-weight:700">Streamer Facecam Split + Kinetic Subtitles</div>
+                <div id="transformAfterDesc" style="margin-top:6px;font-size:11.5px;color:var(--muted)">Isolated 1080p facecam stacked above gameplay HUD. Burned karaoke subtitles in sync.</div>
+              </div>
+              <span class="preview-badge" style="background:rgba(255,85,32,0.85);color:#fff">1080x1920 · 9:16 Vertical</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink-2);line-height:1.45" id="transformAfterNote">
+              Engineered for TikTok, Reels & Shorts algorithms: dynamic word tracking, auto-reframed face, and hook headlines.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Retention Engine Architecture Matrix (#architecture) -->
+  <section id="architecture">
+    <div class="container">
+      <div class="kicker">Core Subsystems</div>
+      <h2>The Retention Engine Architecture</h2>
+      <p class="section-lede">ClipBest replaces slow, browser-based manual editors with a deterministic video pipeline engineered for high-velocity creators.</p>
+
+      <div class="matrix-grid">
+        <div class="matrix-card">
+          <div class="matrix-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
+            <span class="matrix-tag">TELEMETRY</span>
+          </div>
+          <h3>Viewer Heatmap Extraction</h3>
+          <p>Extracts playback curve telemetry to isolate the exact sub-seconds where thousands of real viewers rewound, rewatched, or shared. Eliminates hours of blind scrubbing.</p>
+          <div class="matrix-spec">
+            <span>Query Latency</span>
+            <b>&lt; 1.2s</b>
+          </div>
+        </div>
+
+        <div class="matrix-card">
+          <div class="matrix-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+            <span class="matrix-tag">HARDWARE</span>
+          </div>
+          <h3>Lossless GPU Transcoding</h3>
+          <p>Direct NVENC, AMF, and VideoToolbox rendering at native 1080x1920 60fps with constant rate factor (CRF 19) compression to pass TikTok and Shorts bitrate gates cleanly.</p>
+          <div class="matrix-spec">
+            <span>Encoding Speed</span>
+            <b>Up to 12x Realtime</b>
+          </div>
+        </div>
+
+        <div class="matrix-card">
+          <div class="matrix-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            <span class="matrix-tag">LIBASS PIPELINE</span>
+          </div>
+          <h3>Sub-Millisecond Kinetic Subtitles</h3>
+          <p>Burnt SSA/ASS subtitle compilation via libass. Frame-accurate kinetic word highlighting calibrated to human reading cadence that never slips out of vocal sync.</p>
+          <div class="matrix-spec">
+            <span>Audio/Text Drift</span>
+            <b>0.0ms</b>
+          </div>
+        </div>
+
+        <div class="matrix-card">
+          <div class="matrix-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            <span class="matrix-tag">COMPOSITION</span>
+          </div>
+          <h3>Quadrant Webcam Isolation</h3>
+          <p>Detects streamer webcam boxes across Twitch, Kick, and YouTube HUD overlays. Automatically splits and stacks webcam and gameplay into vertical format without visual distortion.</p>
+          <div class="matrix-spec">
+            <span>Screen Coverage</span>
+            <b>100% Native 9:16</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Trust & Process Workflow (#trust) -->
+  <section id="trust">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:32px">
+        <div class="kicker">Transparent Pipeline</div>
+        <h2>Engineered for Honest Creator Workflows</h2>
+        <p class="section-lede" style="margin:0 auto">No artificial waiting queues. No hidden credit burns. Here is exactly how ClipBest processes your streams.</p>
+      </div>
+
+      <div class="trust-grid">
+        <div class="trust-card">
+          <span class="trust-step">STEP 01</span>
+          <h3>Replay Curve Analysis</h3>
+          <p>Paste any YouTube, Twitch, or Kick URL. We inspect viewer replay metrics to detect peak engagement spikes mathematically.</p>
+        </div>
+
+        <div class="trust-card">
+          <span class="trust-step">STEP 02</span>
+          <h3>Quadrant Splitting</h3>
+          <p>The engine isolates your corner facecam and gameplay quadrant into stacked 9:16 vertical resolution with zero black bars.</p>
+        </div>
+
+        <div class="trust-card">
+          <span class="trust-step">STEP 03</span>
+          <h3>Kinetic Subtitle Burn</h3>
+          <p>Speech is transcribed and compiled into frame-accurate ASS subtitles with dynamic word-by-word active highlighting.</p>
+        </div>
+
+        <div class="trust-card">
+          <span class="trust-step">STEP 04</span>
+          <h3>Lossless Export</h3>
+          <p>Download individual MP4 clips directly, export scheduling metadata CSV for Buffer/Metricool, or download all in a single .ZIP.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Pricing Section (#pricing) -->
+  <section id="pricing">
+    <div class="container" style="text-align:center">
+      <div class="kicker">Simple Studio Plans</div>
+      <h2>Priced Per Video. Not Per Minute.</h2>
+      <p class="section-lede" style="margin:0 auto 36px">Unlike OpusClip and Klap, we never charge you for uploading 4-hour streams. Credit packs never expire.</p>
+
+      <div class="billing-toggle">
+        <span id="labelMonthly" style="color:#fff">Monthly Billing</span>
+        <label class="switch"><input type="checkbox" id="annualToggle" checked></label>
+        <span id="labelAnnual" style="color:#fff">Annual Billing</span>
+        <span class="toggle-chip">Save 35% + 2 Months Free</span>
+      </div>
+
+      <div class="plans">
+        <!-- Free Starter -->
+        <div class="plan">
+          <div class="plan-head"><h3>Free Starter</h3></div>
+          <div class="price">$0 <small>/ month</small></div>
+          <p class="desc">For occasional clipping and testing the local pipeline.</p>
+          <ul>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> 3 clips per video</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Replay heatmap detection</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Kinetic subtitles</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Subtle watermark</li>
+          </ul>
+          <a href="#top" class="btn btn-lg">Start Free</a>
+        </div>
+
+        <!-- Creator Pro -->
+        <div class="plan featured">
+          <span class="plan-badge">MOST POPULAR</span>
+          <div class="plan-head"><h3>Creator Pro</h3></div>
+          <div class="price" id="proPrice">$9 <small>/ month</small></div>
+          <p class="desc">For streamers, clippers, and channels publishing daily shorts.</p>
+          <ul>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> <b>NO WATERMARK</b></li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> <b>All clips per video (Up to 10)</b></li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Streamer facecam split layout</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Custom channel branding handle</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> 1-click Download All (.ZIP)</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Priority GPU turbo rendering</li>
+          </ul>
+          <button class="btn btn-accent btn-lg" id="joinProBtn" type="button" onclick="openModal('pro')">Get Creator Pro</button>
+        </div>
+
+        <!-- Clipper Agency -->
+        <div class="plan">
+          <div class="plan-head"><h3>Clipper Agency</h3></div>
+          <div class="price" id="agencyPrice">$19 <small>/ month</small></div>
+          <p class="desc">For clipping teams, agencies, and high-volume operations.</p>
+          <ul>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Everything in Creator Pro</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Up to 20 clips per video</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Export CSV Metadata for Buffer & Metricool</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Bulk link pasting & queue</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg> Commercial Whop / Client Resale Rights</li>
+          </ul>
+          <button class="btn btn-lg" id="joinAgencyBtn" type="button" onclick="openModal('agency')">Get Clipper Agency</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: FAQ Accordion (#faq) -->
+  <section id="faq">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:32px">
+        <div class="kicker">Frequently Asked Questions</div>
+        <h2>Everything You Need To Know</h2>
+        <p class="section-lede" style="margin:0 auto">Clear answers about how ClipBest processes streams, licensing, and export policies.</p>
+      </div>
+
+      <div class="faq-grid">
+        <details class="faq-item">
+          <summary>Why is ClipBest priced per video instead of per minute?</summary>
+          <p>Competitors charge by the minute of footage uploaded. If you upload a 4-hour livestream, you burn through your entire monthly plan in one go. ClipBest downloads and processes only the selected peak engagement moments, keeping operational costs flat and passing the savings directly to you.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>How does heatmap-based clip detection work?</summary>
+          <p>We query YouTube and Kick playback retention telemetry. The moments where thousands of real viewers rewound, rewatched, or clipped are mathematically proven to deliver the highest retention. If telemetry is unavailable, our audio energy analyzer scans for vocal spikes, crowd cheers, and game sound effects.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I upload recordings directly from my hard drive?</summary>
+          <p>Yes. Click the "Upload Video File" tab in the composer. We support MP4, MOV, MKV, and WebM video files up to 1 GB with offline hardware encoding.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Which streaming platforms are supported?</summary>
+          <p>We support public YouTube streams and VODs, Twitch VODs, and Kick recordings. You can paste any valid stream link or upload the video directly.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>What video file formats are supported?</summary>
+          <p>We support MP4, MOV (QuickTime), MKV, and WebM inputs. Outputs are rendered in universal H.264 / AAC MP4 format calibrated for TikTok, YouTube Shorts, and Instagram Reels.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>How does automatic vertical reframing and streamer split work?</summary>
+          <p>The layout engine analyzes the original 16:9 stream coordinates. For streamer split, it isolates the corner webcam quadrant and center gameplay, stacking them vertically into standard 9:16 resolution with zero distortion.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do kinetic subtitles work and can I customize colors?</summary>
+          <p>Audio is transcribed and compiled into frame-accurate SSA/ASS subtitles using libass. You can choose from three typography styles (Classic Yellow, Impact Green, Podcast Pill) and customize the active word highlight color.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>What are the differences between pricing plans?</summary>
+          <p>Free Starter gives you 3 clips per video with a subtle watermark. Creator Pro ($9/mo) removes all watermarks, unlocks up to 10 clips per video, enables streamer split screen, 1-click ZIP export, and burns your custom social handle. Clipper Agency ($19/mo) unlocks up to 20 clips per video, CSV scheduler manifests for Buffer/TikTok, and commercial client resale rights.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Are generated videos watermarked on the free tier?</summary>
+          <p>Free tier exports include a small ClipBest watermark badge in the corner. Upgrading to Creator Pro or Clipper Agency removes all watermarks and lets you burn your own social handle (e.g. @FaZe_Clan) into all clips.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I download and use generated clips commercially?</summary>
+          <p>Yes. Any clips generated on Creator Pro or Clipper Agency plans include full commercial usage rights for social media publishing, client work, Whop campaigns, and monetized creator channels.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Section 8: SaaS Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom:12px">
+          <span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg></span>
+          <span>ClipBest Studio</span>
+        </div>
+        <p style="font-size:12.5px;line-height:1.55;max-width:280px;color:var(--muted);margin:0 0 16px">
+          Hardware-accelerated short-form video clipper for streamers, podcasters, and creator agencies.
+        </p>
+        <div style="font-size:11.5px;color:var(--faint)">
+          Pipeline version 2.4 · NVENC / AMF Enabled
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#canvas">Reframing Canvas</a></li>
+          <li><a href="#transformation">Before & After</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#trust">How It Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Platforms</h4>
+        <ul>
+          <li><a href="#top">YouTube Clipper</a></li>
+          <li><a href="#top">Twitch VOD Splitter</a></li>
+          <li><a href="#top">Kick Stream Repurposing</a></li>
+          <li><a href="#top">Local File Transcoder</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Trust & Legal</h4>
+        <ul>
+          <li><a href="#" onclick="openLegalModal('terms');return false;">Terms of Service</a></li>
+          <li><a href="#" onclick="openLegalModal('privacy');return false;">Privacy Policy</a></li>
+          <li><a href="#" onclick="openModal('pro');return false;">Commercial Rights</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2026 ClipBest Studio. All rights reserved.</div>
+      <div style="display:flex;gap:16px">
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Legal Terms / Privacy Modal -->
+<div class="modal-overlay" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+  <div class="modal-card" style="max-width:560px">
+    <button class="modal-close" onclick="closeLegalModal()" aria-label="Close modal">&times;</button>
+    <h3 id="legalTitle" style="margin:0 0 12px;font-size:18px;font-weight:700">Terms of Service</h3>
+    <div id="legalContent" style="color:var(--muted);font-size:12.5px;line-height:1.6;max-height:360px;overflow-y:auto;padding-right:8px"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn btn-sm btn-primary" onclick="closeLegalModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pro Upgrade & Checkout Modal -->
+<div class="modal-overlay" id="proModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose" aria-label="Close modal">&times;</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg></span>
+      <h3 id="modalTitle" style="margin:0;font-size:18px;font-weight:700">ClipBest Studio License</h3>
+    </div>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px;line-height:1.45">
+      Remove watermarks, export all 10-20 viral moments, stack streamer facecams, and burn your custom handle onto every clip.
+    </p>
+
+    <!-- Modal Navigation Tabs -->
+    <div class="modal-tabs" role="tablist">
+      <button type="button" class="modal-tab-btn active" id="modalTabCheckout" role="tab" aria-selected="true">
+        Instant Upgrade
+      </button>
+      <button type="button" class="modal-tab-btn" id="modalTabRedeem" role="tab" aria-selected="false">
+        Redeem License Key
+      </button>
+    </div>
+
+    <!-- Pane 1: Instant Upgrade / Checkout -->
+    <div id="paneCheckout">
+      <div class="tier-cards">
+        <label class="tier-card selected" id="tierCardPro">
+          <input type="radio" name="checkoutPlan" value="pro" checked>
+          <span class="tier-badge">Popular</span>
+          <b>Creator Pro</b>
+          <div class="tier-price" id="modalProPrice">$9 <small>/ month</small></div>
+          <small class="tier-desc">10 clips · No watermark · Facecam split · Brand handle</small>
+        </label>
+        <label class="tier-card" id="tierCardAgency">
+          <input type="radio" name="checkoutPlan" value="agency">
+          <span class="tier-badge" style="background:#8b5cf6">Agency</span>
+          <b>Clipper Agency</b>
+          <div class="tier-price" id="modalAgencyPrice">$19 <small>/ month</small></div>
+          <small class="tier-desc">20 clips · CSV scheduler manifest · Commercial Whop rights</small>
+        </label>
+      </div>
+
+      <!-- Gumroad Trust Bar -->
+      <div style="background:rgba(255,144,232,0.08);border:1px solid rgba(255,144,232,0.25);border-radius:8px;padding:9px 12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">🛒</span>
+        <div style="font-size:11.5px;line-height:1.4">
+          <b style="color:#ff90e8">Powered by Gumroad</b>
+          <div style="color:var(--muted)">Credit & Debit Cards · PayPal · Apple Pay · Instant Automated License Key</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="field-label" for="checkoutEmail" style="font-size:11.5px;margin-bottom:4px">Email address (for license backup & receipts)</label>
+        <input class="input" id="checkoutEmail" type="email" placeholder="streamer@twitch.tv" autocomplete="email">
+      </div>
+
+      <button class="btn btn-accent btn-lg" id="modalCheckoutBtn" type="button" style="width:100%;height:42px;font-size:14px;justify-content:center">
+        Proceed to Gumroad Checkout
+      </button>
+
+      <div id="foundingBanner" style="background:rgba(255,85,32,0.06);border:1px solid rgba(255,85,32,0.25);border-radius:9px;padding:9px 12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <b style="color:#fff;font-size:12px">⚡ Founding Creator Access</b>
+          <p style="margin:2px 0 0;color:#ff9838;font-size:11px">Use code <b>CLIP-FOUNDING-PRO</b> for instant test license</p>
+        </div>
+        <button type="button" class="btn btn-sm btn-accent" id="applyFoundingBtn" style="height:26px;font-size:11px;padding:0 8px">Apply Code</button>
+      </div>
+
+      <div class="guarantee-strip">
+        <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg> Instant Key Activation</span>
+        <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg> Cancel Anytime</span>
+        <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg> 100% Monetizable</span>
+      </div>
+
+      <div style="margin-top:12px;text-align:center">
+        <button type="button" id="togglePaymentAdmin" style="background:none;border:none;color:var(--faint);font-size:11px;cursor:pointer;padding:4px 8px">
+          ⚙️ Manage Gumroad Product Links
+        </button>
+      </div>
+
+      <div class="admin-config-panel" id="paymentAdminPanel">
+        <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:6px">⚙️ Gumroad Configuration</div>
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px;line-height:1.4">
+          Paste your Gumroad product links and permalinks below. Changes are saved instantly to the server.
+        </p>
+        <div style="display:grid;gap:8px">
+          <div>
+            <label class="field-label" for="cfgGumroadPro" style="font-size:10.5px">Gumroad Creator Pro URL ($9/mo)</label>
+            <input class="input mono" id="cfgGumroadPro" style="font-size:11px;height:32px" placeholder="https://gumroad.com/l/clipbest-pro">
+          </div>
+          <div>
+            <label class="field-label" for="cfgGumroadAgency" style="font-size:10.5px">Gumroad Clipper Agency URL ($19/mo)</label>
+            <input class="input mono" id="cfgGumroadAgency" style="font-size:11px;height:32px" placeholder="https://gumroad.com/l/clipbest-agency">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label class="field-label" for="cfgGumroadProPermalink" style="font-size:10.5px">Pro Permalink</label>
+              <input class="input mono" id="cfgGumroadProPermalink" style="font-size:11px;height:32px" placeholder="clipbest-pro">
+            </div>
+            <div>
+              <label class="field-label" for="cfgGumroadAgencyPermalink" style="font-size:10.5px">Agency Permalink</label>
+              <input class="input mono" id="cfgGumroadAgencyPermalink" style="font-size:11px;height:32px" placeholder="clipbest-agency">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+            <button type="button" class="btn btn-sm btn-primary" id="savePaymentLinksBtn" style="height:28px;font-size:11.5px">Save Gumroad Links</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pane 2: Redeem Existing License Key -->
+    <div id="paneRedeem" style="display:none">
+      <div style="margin-bottom:12px">
+        <label class="field-label" for="modalProCode" style="font-size:11.5px;margin-bottom:4px">Enter your Pro license code</label>
+        <div class="pro-code-row">
+          <input class="input mono" id="modalProCode" type="text" placeholder="e.g. CLIP-PRO-0AD19F">
+          <button class="btn btn-primary" id="modalVerifyBtn" type="button" style="flex:none">Verify Key</button>
+        </div>
+      </div>
+
+      <div id="activeLicenseCard" style="display:none;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:9px;padding:12px;margin-top:10px">
+        <div style="display:flex;align-items:center;gap:6px;color:var(--ok);font-size:12.5px;font-weight:600">
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>
+          <span id="activePlanTitle">Creator Pro Active</span>
+        </div>
+        <div style="margin-top:5px;font-size:11.5px;color:var(--muted);display:grid;gap:3px">
+          <div>License: <b class="mono" id="activeCodeDisplay" style="color:#fff"></b></div>
+          <div id="activeEmailDisplay" style="color:var(--muted)"></div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <button type="button" class="btn btn-sm" id="copyCodeBtn" style="height:26px;font-size:11px">Copy Key</button>
+          <button type="button" class="btn btn-sm" id="deactivateBtn" style="height:26px;font-size:11px;color:#f87171">Deactivate on this device</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let toastT;
+function toast(msg) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const nav = $('nav');
+addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10), { passive: true });
+
+function focusComposerInput() {
+  const inp = $('url');
+  if (inp) {
+    inp.focus();
+    $('composerCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// Local Storage Helper
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+
+// AI Provider Setup
+const KEY_LINKS = {
+  '': ['https://aistudio.google.com/apikey', 'Get a free Gemini key'],
+  gemini: ['https://aistudio.google.com/apikey', 'Get a free Gemini key'],
+  claude: ['https://platform.claude.com/settings/keys', 'Get a Claude key'],
+  openai: ['https://platform.openai.com/api-keys', 'Get an OpenAI key'],
+};
+const KEY_HINTS = { gemini: 'Paste your Gemini API key', claude: 'Paste your Claude API key (sk-ant-…)', openai: 'Paste your OpenAI API key (sk-…)' };
+let serverStatus = { ai: false, label: 'Basic' };
+
+function refreshAiNote() {
+  const p = $('provider').value, hasKey = !!$('apiKey').value.trim();
+  const custom = p && hasKey;
+  const on = custom || serverStatus.ai;
+  $('aiDot').classList.toggle('on', on);
+  $('aiText').textContent = custom ? `${$('provider').selectedOptions[0].text}` : (serverStatus.ai ? `${serverStatus.label} AI` : 'Basic AI');
+}
+function onProvider() {
+  const p = $('provider').value;
+  $('apiKey').disabled = !p;
+  $('apiKey').placeholder = p ? KEY_HINTS[p] : "Default server model active";
+  const [href, text] = KEY_LINKS[p] || KEY_LINKS[''];
+  $('keyLink').href = href; $('keyLink').textContent = text;
+  $('apiKey').value = p && $('rememberKey').checked ? (store.get('cb.key.' + p) || '') : (p ? $('apiKey').value : '');
+  store.set('cb.provider', p || null);
+  refreshAiNote();
+}
+$('toggleSettings').onclick = () => {
+  const open = $('settings').classList.toggle('open');
+  $('toggleSettings').setAttribute('aria-expanded', open);
+  store.set('cb.settingsOpen', open ? '1' : null);
+};
+
+// Tuning Navigation Tabs
+function switchTuningTab(tabName) {
+  $('tabTuneFraming').classList.toggle('active', tabName === 'framing');
+  $('tabTuneFraming').setAttribute('aria-selected', tabName === 'framing');
+  $('tabTuneCaptions').classList.toggle('active', tabName === 'captions');
+  $('tabTuneCaptions').setAttribute('aria-selected', tabName === 'captions');
+  $('tabTuneAi').classList.toggle('active', tabName === 'ai');
+  $('tabTuneAi').setAttribute('aria-selected', tabName === 'ai');
+
+  $('paneTuneFraming').classList.toggle('active', tabName === 'framing');
+  $('paneTuneCaptions').classList.toggle('active', tabName === 'captions');
+  $('paneTuneAi').classList.toggle('active', tabName === 'ai');
+}
+$('tabTuneFraming').onclick = () => switchTuningTab('framing');
+$('tabTuneCaptions').onclick = () => switchTuningTab('captions');
+$('tabTuneAi').onclick = () => switchTuningTab('ai');
+
+$('provider').onchange = onProvider;
+$('apiKey').oninput = () => {
+  if ($('rememberKey').checked && $('provider').value) store.set('cb.key.' + $('provider').value, $('apiKey').value.trim() || null);
+  refreshAiNote();
+};
+$('rememberKey').onchange = () => {
+  const on = $('rememberKey').checked, p = $('provider').value;
+  store.set('cb.remember', on ? '1' : null);
+  if (!on) ['gemini', 'claude', 'openai'].forEach(x => store.set('cb.key.' + x, null));
+  else if (p && $('apiKey').value.trim()) store.set('cb.key.' + p, $('apiKey').value.trim());
+};
+$('instructions').oninput = () => {
+  $('instrCount').textContent = `${$('instructions').value.length}/1000`;
+  store.set('cb.instructions', $('instructions').value || null);
+};
+
+// Caption Swatches Preview
+const STYLE_HI = { classic: '#FFE500', bold: '#3DFF6E', clean: '#7DD3FC' };
+function tintPreviews() {
+  const c = document.querySelector('input[name=capColor]:checked')?.value;
+  document.querySelectorAll('.style-opt').forEach(o => {
+    o.querySelector('.style-prev').style.setProperty('--hi', c || STYLE_HI[o.querySelector('input').value]);
+  });
+}
+function updateFramingDisplay() {
+  const f = document.querySelector('input[name=framing]:checked')?.value;
+  if ($('facecamOptions')) $('facecamOptions').style.display = f === 'split' ? 'grid' : 'none';
+}
+document.querySelectorAll('input[name=capStyle]').forEach(r => r.onchange = () => store.set('cb.capStyle', r.value));
+document.querySelectorAll('input[name=format]').forEach(r => r.onchange = () => store.set('cb.format', r.value));
+document.querySelectorAll('input[name=framing]').forEach(r => r.onchange = () => { store.set('cb.framing', r.value); updateFramingDisplay(); });
+document.querySelectorAll('input[name=facecamPos]').forEach(r => r.onchange = () => store.set('cb.facecamPos', r.value));
+document.querySelectorAll('input[name=style]').forEach(r => r.onchange = () => store.set('cb.style', r.value));
+document.querySelectorAll('input[name=capColor]').forEach(r => r.onchange = () => { store.set('cb.capColor', r.value || null); tintPreviews(); });
+$('optZoom').onchange = () => store.set('cb.zoom', $('optZoom').checked ? '1' : null);
+
+// Presets Definition
+const PRESETS = {
+  streamer: { style: 'hype', framing: 'split', facecamPos: 'auto', capStyle: 'classic', capColor: '#FFE500', zoom: true },
+  hype: { style: 'hype', framing: 'fill', capStyle: 'bold', capColor: '#3DFF6E', zoom: true },
+  podcast: { style: 'informative', framing: 'fit', capStyle: 'clean', capColor: '#7DD3FC', zoom: false },
+  funny: { style: 'funny', framing: 'fill', capStyle: 'classic', capColor: '#FF7A1A', zoom: true },
+};
+function applyPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  document.querySelectorAll('.preset-chip').forEach(c => c.classList.toggle('active', c.dataset.preset === name));
+  const setRadio = (rName, val) => { const el = document.querySelector(`input[name=${rName}][value="${val}"]`); if (el) el.checked = true; };
+  setRadio('style', p.style);
+  setRadio('framing', p.framing);
+  if (p.facecamPos) setRadio('facecamPos', p.facecamPos);
+  setRadio('capStyle', p.capStyle);
+  setRadio('capColor', p.capColor);
+  $('optZoom').checked = p.zoom;
+  updateFramingDisplay();
+  tintPreviews();
+}
+document.querySelectorAll('.preset-chip').forEach(chip => {
+  chip.onclick = () => {
+    applyPreset(chip.dataset.preset);
+    toast(`Preset active: ${chip.textContent.trim()}`);
+  };
+});
+
+// Demo Stream Links
+document.querySelectorAll('.demo-link').forEach(link => {
+  link.onclick = () => {
+    const url = link.dataset.url;
+    const preset = link.dataset.preset;
+    if (url) {
+      $('url').value = url;
+      if ($('tabUrl')) $('tabUrl').click();
+      if (preset) applyPreset(preset);
+      toast(`Demo stream loaded. Ready to run!`);
+    }
+  };
+});
+
+// Interactive Reframing Canvas Switcher
+let activeCanvasMode = 'split';
+const CANVAS_DATA = {
+  split: {
+    kicker: 'STREAMER SPLIT ENGINE',
+    title: 'Streamer Webcam & Gameplay Split',
+    desc: 'Isolates corner webcam from Twitch/Kick VODs and stacks it on top of 1080p gameplay with live audio VU meters. Zero letterboxing.',
+    val1: '+280%',
+    label1: 'Viewer Completion Rate',
+    val2: '100%',
+    label2: 'Mobile Screen Coverage',
+    enc: 'NVENC / AMF 60fps',
+    preset: 'streamer'
+  },
+  kinetic: {
+    kicker: 'KINETIC RETENTION',
+    title: 'Frame-Accurate Kinetic Subtitles',
+    desc: 'Word-by-word active highlighting synchronized to human vocal cadence. Proven 3x higher retention on TikTok & Reels.',
+    val1: '3.2x',
+    label1: 'Average Watch Duration',
+    val2: '0.0ms',
+    label2: 'Audio / Typography Drift',
+    enc: 'libass SSA/ASS Burnt',
+    preset: 'podcast'
+  },
+  raw: {
+    kicker: 'LEGACY HORIZONTAL',
+    title: 'Raw 16:9 Stream (Unreframed)',
+    desc: 'Standard horizontal stream posted without reframing. 65% of screen area is wasted with black letterbox bars.',
+    val1: '-68%',
+    label1: 'Viewer Retention Drop',
+    val2: '35%',
+    label2: 'Usable Screen Space',
+    enc: 'Standard Pass-through',
+    preset: 'streamer'
+  }
+};
+
+function switchCanvasMode(mode) {
+  activeCanvasMode = mode;
+  $('tabModeSplit').classList.toggle('active', mode === 'split');
+  $('tabModeKinetic').classList.toggle('active', mode === 'kinetic');
+  $('tabModeRaw').classList.toggle('active', mode === 'raw');
+
+  $('viewSplit').style.display = mode === 'split' ? 'flex' : 'none';
+  $('viewKinetic').style.display = mode === 'kinetic' ? 'flex' : 'none';
+  $('viewRaw').style.display = mode === 'raw' ? 'flex' : 'none';
+
+  const d = CANVAS_DATA[mode];
+  if (d) {
+    $('canvasKicker').textContent = d.kicker;
+    $('canvasTitle').textContent = d.title;
+    $('canvasDesc').textContent = d.desc;
+    $('statVal1').textContent = d.val1;
+    $('statVal1').classList.toggle('highlight', !d.val1.startsWith('-'));
+    $('statLabel1').textContent = d.label1;
+    $('statVal2').textContent = d.val2;
+    $('statLabel2').textContent = d.label2;
+    $('telemetryEnc').textContent = d.enc;
+  }
+}
+
+function applyPresetFromCanvas() {
+  const d = CANVAS_DATA[activeCanvasMode];
+  if (d && d.preset) {
+    applyPreset(d.preset);
+    scrollTo({ top: 0, behavior: 'smooth' });
+    toast(`Preset "${d.preset}" applied to Studio!`);
+  }
+}
+
+// Before & After Transformation Switcher
+const TRANSFORM_DATA = {
+  gaming: {
+    beforeTitle: '3-Hour Twitch VOD',
+    beforeDesc: 'Tiny corner webcam, unreadable mobile UI, 65% black bars when viewed on phones.',
+    beforeBadge: '1920x1080 · Raw 16:9',
+    beforeNote: 'Unedited footage has prolonged downtime and lacks mobile typography. Viewers swipe away within the first 3 seconds.',
+    afterTitle: 'Streamer Facecam Split + Kinetic Subtitles',
+    afterDesc: 'Isolated 1080p facecam stacked above gameplay HUD. Burned karaoke subtitles in sync.',
+    afterNote: 'Engineered for TikTok, Reels & Shorts algorithms: dynamic word tracking, auto-reframed face, and hook headlines.'
+  },
+  podcast: {
+    beforeTitle: '2-Hour Studio Podcast',
+    beforeDesc: 'Wide multi-guest shot with distant speakers, no captions, low engagement on mobile feeds.',
+    beforeBadge: '1920x1080 · Static Wide',
+    beforeNote: 'Horizontal podcasts force viewers to tilt phones or strain to see speakers. Silent autoplay causes immediate drop-off.',
+    afterTitle: 'Smart-Fit Crop + Podcast Clean Pill Subtitles',
+    afterDesc: 'Speaker-centered 9:16 vertical crop with high-contrast text pill subtitles and brand handle.',
+    afterNote: 'Optimized for feed scrolling: readable on mute, 100% full-screen mobile immersion.'
+  }
+};
+
+function switchTransformExample(type) {
+  $('tabTransformGaming').classList.toggle('active', type === 'gaming');
+  $('tabTransformPodcast').classList.toggle('active', type === 'podcast');
+  const d = TRANSFORM_DATA[type];
+  if (d) {
+    $('transformBeforeTitle').textContent = d.beforeTitle;
+    $('transformBeforeDesc').textContent = d.beforeDesc;
+    $('transformBeforeBadge').textContent = d.beforeBadge;
+    $('transformBeforeNote').textContent = d.beforeNote;
+    $('transformAfterTitle').textContent = d.afterTitle;
+    $('transformAfterDesc').textContent = d.afterDesc;
+    $('transformAfterNote').textContent = d.afterNote;
+  }
+}
+
+// Legal Terms / Privacy Modal
+const LEGAL_TEXTS = {
+  terms: `<h4>1. Commercial Usage</h4><p>Clips produced under Creator Pro and Clipper Agency plans include perpetual commercial distribution rights across YouTube Shorts, TikTok, Instagram Reels, and client engagements.</p><h4>2. Processing & Compute</h4><p>ClipBest provides hardware-accelerated processing per video uploaded. Free starter tiers include watermark branding.</p><h4>3. Content Rights</h4><p>You retain full ownership of the intellectual property of your raw streams and resulting clipped output.</p>`,
+  privacy: `<h4>1. Video Privacy</h4><p>We do not store your full multi-hour source videos beyond the temporary processing window needed to extract selected clips.</p><h4>2. Account Data</h4><p>Your license key and optional API keys are stored locally in your browser storage or secured on server instance memory.</p><h4>3. Zero Selling</h4><p>ClipBest never sells creator telemetry, video assets, or email addresses to third parties.</p>`
+};
+
+function openLegalModal(type) {
+  $('legalTitle').textContent = type === 'terms' ? 'Terms of Service' : 'Privacy Policy';
+  $('legalContent').innerHTML = LEGAL_TEXTS[type] || '';
+  $('legalModal').classList.add('open');
+}
+function closeLegalModal() {
+  $('legalModal').classList.remove('open');
+}
+
+// Restore preferences
+(() => {
+  ['format', 'framing', 'facecamPos', 'style', 'capStyle', 'capColor'].forEach(n => {
+    const v = store.get('cb.' + n);
+    if (v) { const el = document.querySelector(`input[name=${n}][value="${CSS.escape(v)}"]`); if (el) el.checked = true; }
+  });
+  updateFramingDisplay();
+  const ins = store.get('cb.instructions'); if (ins) { $('instructions').value = ins; $('instrCount').textContent = `${ins.length}/1000`; }
+  $('optZoom').checked = store.get('cb.zoom') === '1';
+  $('rememberKey').checked = store.get('cb.remember') === '1';
+  const p = store.get('cb.provider'); if (p && KEY_HINTS[p]) $('provider').value = p;
+  const pc = store.get('cb.proCode');
+  if (pc) {
+    if ($('proCode')) $('proCode').value = pc;
+    if ($('modalProCode')) $('modalProCode').value = pc;
+  }
+  if (store.get('cb.settingsOpen') === '1') $('toggleSettings').click();
+  onProvider();
+  tintPreviews();
+})();
+
+fetch('/api/status').then(r => r.json()).then(s => {
+  serverStatus = s; refreshAiNote();
+  if (s.freeClips && $('planLabel') && (!$('proBadge') || !$('proBadge').style.display.includes('flex'))) {
+    $('planLabel').textContent = `Free Starter · ${s.freeClips} clips per video`;
+  }
+}).catch(() => {});
+
+// Confetti Celebration
+function fireConfetti() {
+  const canvas = $('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  const particles = Array.from({ length: 70 }, () => ({
+    x: innerWidth / 2,
+    y: innerHeight / 2,
+    vx: (Math.random() - 0.5) * 15,
+    vy: (Math.random() - 0.7) * 16,
+    size: Math.random() * 6 + 4,
+    color: ['#ff5520', '#10b981', '#f59e0b', '#8b5cf6', '#38bdf8'][Math.floor(Math.random() * 5)],
+    rot: Math.random() * 360,
+    vrot: (Math.random() - 0.5) * 10,
+    life: 1,
+  }));
+  let req;
+  const frame = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.45;
+      p.rot += p.vrot;
+      p.life -= 0.015;
+      if (p.life > 0) {
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      }
+    });
+    if (alive) req = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+  frame();
+}
+
+async function verifyProCode(codeToVerify, silent = false) {
+  const code = (codeToVerify || ($('modalProCode') ? $('modalProCode').value : '') || ($('proCode') ? $('proCode').value : '')).trim();
+  if (!code) {
+    if ($('proBadge')) $('proBadge').style.display = 'none';
+    if (!silent) toast('Please enter a license key');
+    return;
+  }
+  try {
+    const res = await fetch('/api/verify-code', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      const planName = data.plan === 'agency' ? 'Clipper Agency' : 'Creator Pro';
+      if ($('proBadge')) $('proBadge').style.display = 'flex';
+      if ($('planLabel')) $('planLabel').textContent = `${planName} Active · No Watermark · Up to ${data.plan === 'agency' ? 20 : 10} Clips`;
+      if ($('proCode')) $('proCode').value = code;
+      if ($('modalProCode')) $('modalProCode').value = code;
+      store.set('cb.proCode', code);
+      store.set('cb.plan', data.plan || 'pro');
+
+      // Update Navbar Pro Pill
+      if ($('navProBtn')) {
+        $('navProBtn').classList.add('active');
+        $('navProBtn').innerHTML = `👑 <span class="nav-pro-text">${planName} Active</span>`;
+      }
+
+      // Update Brand handle field status
+      if ($('brandStatus')) $('brandStatus').textContent = 'Pro Active · Ready to burn into clips';
+      if ($('brandUnlockBtn')) $('brandUnlockBtn').style.display = 'none';
+      if ($('customBrand') && !$('customBrand').value) $('customBrand').value = store.get('cb.brand') || '';
+
+      // Update Modal active details card
+      if ($('activeLicenseCard')) {
+        $('activeLicenseCard').style.display = 'block';
+        $('activePlanTitle').textContent = `${planName} (Active)`;
+        $('activeCodeDisplay').textContent = code;
+        if ($('activeEmailDisplay')) $('activeEmailDisplay').textContent = data.email ? `Registered to: ${data.email}` : '';
+      }
+
+      if (!silent) {
+        toast(`🎉 ${planName} Activated! Zero watermarks.`);
+        fireConfetti();
+        closeModal();
+      }
+    } else {
+      if ($('proBadge')) $('proBadge').style.display = 'none';
+      if ($('navProBtn')) {
+        $('navProBtn').classList.remove('active');
+        $('navProBtn').innerHTML = `⚡ <span class="nav-pro-text">Pro Studio</span>`;
+      }
+      if ($('brandStatus')) $('brandStatus').textContent = 'Free burns watermark';
+      if ($('brandUnlockBtn')) $('brandUnlockBtn').style.display = 'inline-flex';
+      if ($('activeLicenseCard')) $('activeLicenseCard').style.display = 'none';
+      if (!silent) toast('Invalid or expired license key');
+    }
+  } catch {
+    if (!silent) toast('Verification server request failed');
+  }
+}
+if ($('verifyCodeBtn')) $('verifyCodeBtn').onclick = () => verifyProCode(($('modalProCode')?.value || $('proCode')?.value || ''), false);
+if (store.get('cb.proCode')) verifyProCode(store.get('cb.proCode'), true);
+
+// Source Switcher (URL vs File Upload)
+let selectedVideoFile = null;
+$('tabUrl').onclick = () => {
+  $('tabUrl').classList.add('active'); $('tabUrl').setAttribute('aria-selected', 'true');
+  $('tabUpload').classList.remove('active'); $('tabUpload').setAttribute('aria-selected', 'false');
+  $('rowUrl').style.display = 'flex';
+  if ($('demoStrip')) $('demoStrip').style.display = 'flex';
+  $('dropZone').style.display = 'none';
+};
+$('tabUpload').onclick = () => {
+  $('tabUpload').classList.add('active'); $('tabUpload').setAttribute('aria-selected', 'true');
+  $('tabUrl').classList.remove('active'); $('tabUrl').setAttribute('aria-selected', 'false');
+  $('rowUrl').style.display = 'none';
+  if ($('demoStrip')) $('demoStrip').style.display = 'none';
+  $('dropZone').style.display = 'block';
+};
+$('dropZone').onclick = (e) => {
+  if (e.target.closest('#uploadSubmit')) return;
+  $('videoFile').click();
+};
+$('videoFile').onchange = () => {
+  if ($('videoFile').files && $('videoFile').files[0]) handleFileSelect($('videoFile').files[0]);
+};
+$('dropZone').ondragover = (e) => { e.preventDefault(); $('dropZone').classList.add('dragover'); };
+$('dropZone').ondragleave = () => { $('dropZone').classList.remove('dragover'); };
+$('dropZone').ondrop = (e) => {
+  e.preventDefault();
+  $('dropZone').classList.remove('dragover');
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+};
+
+function handleFileSelect(file) {
+  if (!/\.(mp4|mov|mkv|webm)$/i.test(file.name)) {
+    return toast('Please select an MP4, MOV, MKV, or WebM video file');
+  }
+  if (file.size > 1024 * 1024 * 1024) {
+    return toast('File exceeds 1 GB limit');
+  }
+  selectedVideoFile = file;
+  $('fileName').textContent = `📄 ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
+  $('dropContent').style.display = 'none';
+  $('fileInfo').style.display = 'block';
+}
+
+// Upload Submission
+$('uploadSubmit').onclick = async () => {
+  if (!selectedVideoFile) return toast('Select a video file first');
+  const provider = $('provider').value, apiKey = $('apiKey').value.trim();
+  if (provider && !apiKey) {
+    if (!$('settings').classList.contains('open')) $('toggleSettings').click();
+    switchTuningTab('ai');
+    $('apiKey').focus(); return toast('Paste an API key, or switch model back to Default');
+  }
+  start();
+  $('wsTitle').textContent = `Uploading ${selectedVideoFile.name}…`;
+
+  const fd = new FormData();
+  fd.append('video', selectedVideoFile);
+  fd.append('captions', $('optCaptions').checked);
+  fd.append('hooks', $('optHooks').checked);
+  fd.append('style', document.querySelector('input[name=style]:checked').value);
+  fd.append('instructions', $('instructions').value.trim());
+  fd.append('format', document.querySelector('input[name=format]:checked').value);
+  fd.append('framing', document.querySelector('input[name=framing]:checked').value);
+  fd.append('facecamPos', document.querySelector('input[name=facecamPos]:checked')?.value || 'auto');
+  fd.append('zoom', $('optZoom').checked);
+  fd.append('capStyle', document.querySelector('input[name=capStyle]:checked').value);
+  const color = document.querySelector('input[name=capColor]:checked')?.value;
+  if (color) fd.append('capColor', color);
+  const code = store.get('cb.proCode') || $('proCode')?.value.trim() || $('modalProCode')?.value.trim();
+  if (code) fd.append('proCode', code);
+  const brand = $('customBrand')?.value.trim();
+  if (brand) fd.append('customBrand', brand);
+  if (provider) fd.append('provider', provider);
+  if (apiKey) fd.append('apiKey', apiKey);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/upload');
+  xhr.upload.onprogress = (ev) => {
+    if (ev.lengthComputable) {
+      const pct = Math.round((ev.loaded / ev.total) * 100);
+      $('wsLabel').textContent = `Uploading file (${pct}%)`;
+      $('bar').style.width = Math.min(20, Math.round(pct * 0.2)) + '%';
+      $('pctLabel').textContent = `${Math.min(20, Math.round(pct * 0.2))}%`;
+    }
+  };
+  xhr.onload = () => {
+    try {
+      const j = JSON.parse(xhr.responseText);
+      if (xhr.status >= 200 && xhr.status < 300 && j.id) {
+        poll(j.id);
+      } else {
+        fail(j.error || 'Upload failed to process');
+      }
+    } catch {
+      fail('Server returned invalid upload response');
+    }
+  };
+  xhr.onerror = () => fail('Upload failed. Check your connection.');
+  xhr.send(fd);
+};
+
+// URL Form Submission
+const CHECK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>';
+let pollTimer, shown = new Set();
+
+$('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const url = $('url').value.trim();
+  if (!/^https?:\/\//i.test(url)) { $('url').focus(); return toast('Paste a full link starting with https://'); }
+  const provider = $('provider').value, apiKey = $('apiKey').value.trim();
+  if (provider && !apiKey) {
+    if (!$('settings').classList.contains('open')) $('toggleSettings').click();
+    switchTuningTab('ai');
+    $('apiKey').focus(); return toast('Paste an API key, or switch model back to Default');
+  }
+  start();
+  try {
+    const r = await fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        url,
+        captions: $('optCaptions').checked,
+        hooks: $('optHooks').checked,
+        style: document.querySelector('input[name=style]:checked').value,
+        instructions: $('instructions').value.trim(),
+        format: document.querySelector('input[name=format]:checked').value,
+        framing: document.querySelector('input[name=framing]:checked').value,
+        facecamPos: document.querySelector('input[name=facecamPos]:checked')?.value || 'auto',
+        zoom: $('optZoom').checked,
+        capStyle: document.querySelector('input[name=capStyle]:checked').value,
+        capColor: document.querySelector('input[name=capColor]:checked')?.value || undefined,
+        proCode: store.get('cb.proCode') || $('proCode')?.value.trim() || $('modalProCode')?.value.trim() || undefined,
+        customBrand: $('customBrand')?.value.trim() || undefined,
+        provider: provider || undefined,
+        apiKey: provider ? apiKey : undefined,
+      })
+    });
+    const j = await r.json();
+    if (!r.ok) return fail(j.error || 'Something went wrong');
+    poll(j.id);
+  } catch {
+    fail('Could not reach the server');
+  }
+});
+
+$('newBtn').onclick = () => {
+  clearTimeout(pollTimer);
+  $('url').value = '';
+  selectedVideoFile = null;
+  $('dropContent').style.display = 'flex';
+  $('fileInfo').style.display = 'none';
+  scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => $('url').focus(), 400);
+};
+
+function start() {
+  clearTimeout(pollTimer); shown = new Set();
+  $('submit').disabled = true;
+  if ($('uploadSubmit')) $('uploadSubmit').disabled = true;
+  $('zipBtn').style.display = 'none';
+  if ($('csvBtn')) $('csvBtn').style.display = 'none';
+  $('workspace').classList.add('show');
+  $('alert').style.display = 'none';
+  $('warn').style.display = 'none';
+  $('wsLabel').textContent = 'Processing Stream';
+  $('wsTitle').textContent = 'Connecting to video source…';
+  $('note').textContent = 'Scanning for highest engagement moments...';
+  $('clips').innerHTML = Array.from({ length: 3 }, () => '<div class="skeleton"></div>').join('');
+  setStage(0, 2);
+  $('workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setStage(stage, pct) {
+  document.querySelectorAll('.stage').forEach(el => {
+    const s = +el.dataset.s;
+    el.classList.toggle('done', s < stage);
+    el.classList.toggle('active', s === stage);
+    el.querySelector('.ind').innerHTML = s < stage ? CHECK : '';
+  });
+  $('bar').style.width = pct + '%';
+  $('pctLabel').textContent = `${Math.round(pct)}%`;
+}
+
+function fail(msg) {
+  $('alert').textContent = msg; $('alert').style.display = 'block';
+  $('wsLabel').textContent = 'Stopped';
+  $('submit').disabled = false;
+  if ($('uploadSubmit')) $('uploadSubmit').disabled = false;
+  document.querySelectorAll('.stage.active').forEach(el => el.classList.remove('active'));
+  $('clips').querySelectorAll('.skeleton').forEach(s => s.remove());
+}
+
+async function poll(id) {
+  let j;
+  try { j = await (await fetch('/api/jobs/' + id)).json(); } catch { pollTimer = setTimeout(() => poll(id), 3000); return; }
+  if (j.title) $('wsTitle').textContent = j.title;
+  setStage(j.stage ?? 0, j.pct || 2);
+  if (j.method) $('note').textContent = `${j.method} · ${j.step || 'Working...'}`;
+  render(j);
+  if (j.error) return fail(j.error);
+  if (j.done) {
+    $('wsLabel').textContent = `${j.clips.length} Viral Shorts Ready!`;
+    $('note').textContent = j.hookSource && j.hookSource !== 'off' ? `Hooks generated by ${j.hookLabel}.` : 'Ready to post.';
+    if (j.hookNote) { $('warn').textContent = j.hookNote; $('warn').style.display = 'block'; }
+    $('submit').disabled = false;
+    if ($('uploadSubmit')) $('uploadSubmit').disabled = false;
+    $('clips').querySelectorAll('.skeleton').forEach(s => s.remove());
+    return;
+  }
+  pollTimer = setTimeout(() => poll(id), 1500);
+}
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const ratioOf = f => (f || '9:16').replace(':', ' / ');
+
+function render(j) {
+  if (j.done && (j.clips || []).length > 0) {
+    $('zipBtn').href = `/api/jobs/${j.id}/zip`;
+    $('zipBtn').style.display = 'inline-flex';
+    if ($('csvBtn')) {
+      $('csvBtn').href = `/api/jobs/${j.id}/csv`;
+      $('csvBtn').style.display = 'inline-flex';
+    }
+  } else {
+    $('zipBtn').style.display = 'none';
+    if ($('csvBtn')) $('csvBtn').style.display = 'none';
+  }
+
+  for (const c of (j.clips || [])) {
+    if (shown.has(c.n)) continue;
+    shown.add(c.n);
+    const el = document.createElement('article');
+    el.className = 'clip';
+    el.dataset.n = c.n;
+    const post = [c.caption, (c.hashtags || []).join(' ')].filter(Boolean).join('\n\n');
+    el.innerHTML = `
+      <div class="player" style="aspect-ratio:${ratioOf(j.format)}">
+        <video src="${esc(c.url)}" controls preload="metadata" playsinline></video>
+        <span class="badge"><span class="badge-flame">🔥</span><span class="mono">${c.score}</span><span class="bar"><i style="width:${c.score}%"></i></span></span>
+        <span class="time mono">${fmt(c.start)}–${fmt(c.end)}</span>
+      </div>
+      <div class="clip-body">
+        <div class="clip-hook">${esc(c.hook || `Viral Moment #${c.n}`)}</div>
+        ${c.caption ? `<div class="clip-cap">${esc(c.caption)}</div>` : ''}
+        ${(c.hashtags || []).length ? `<div class="chips">${c.hashtags.map(h => `<span class="chip">${esc(h)}</span>`).join('')}</div>` : ''}
+        <div class="clip-actions">
+          <a class="btn btn-primary" href="${esc(c.url)}" download="clip-${c.n}.mp4">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>
+            Download
+          </a>
+          ${post ? `<button class="btn copy" type="button">Copy Post</button>` : ''}
+        </div>
+      </div>`;
+    const btn = el.querySelector('.copy');
+    if (btn) btn.onclick = () => navigator.clipboard.writeText(post).then(() => toast('✨ Caption & Hashtags copied!'), () => toast('Copy failed'));
+    const after = [...$('clips').querySelectorAll('.clip')].find(x => +x.dataset.n > c.n) || $('clips').querySelector('.skeleton');
+    after ? $('clips').insertBefore(el, after) : $('clips').appendChild(el);
+  }
+
+  if (j.renderCount) {
+    const sk = [...$('clips').querySelectorAll('.skeleton')];
+    sk.slice(Math.max(0, j.renderCount - shown.size)).forEach(s => s.remove());
+  }
+  renderLocked(j);
+}
+
+function renderLocked(j) {
+  if (!j.locked || !j.locked.length || $('clips').querySelector('.locked')) return;
+  const frag = document.createDocumentFragment();
+  const up = document.createElement('div');
+  up.className = 'upsell';
+  up.innerHTML = `
+    <div>
+      <b>⚡ ${j.locked.length} High-Engagement Moments Detected</b>
+      <p>Free plan includes the top 3 clips. Pro unlocks all moments, removes watermarks, and enables 1-click ZIP downloads.</p>
+    </div>
+    <button class="btn btn-accent" type="button" onclick="openModal()">Unlock with Pro ($9/mo)</button>`;
+  frag.appendChild(up);
+
+  for (const c of j.locked) {
+    const el = document.createElement('article');
+    el.className = 'locked';
+    el.innerHTML = `
+      <div class="player" style="aspect-ratio:${ratioOf(j.format)};background-image:url('${esc(j.thumb || '')}')">
+        <span class="badge"><span class="badge-flame">🔥</span><span class="mono">${c.score}</span><span class="bar"><i style="width:${c.score}%"></i></span></span>
+        <div class="lock-center">
+          <div class="lock-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <b>Viral Moment #${c.n}</b>
+          <small>Replay heatmap detected spike</small>
+          <button class="btn btn-accent btn-sm" style="margin-top:4px;height:30px;font-size:12px" type="button" onclick="openModal()">Unlock Clip</button>
+        </div>
+        <span class="time mono">${fmt(c.start)}–${fmt(c.end)}</span>
+      </div>`;
+    frag.appendChild(el);
+  }
+  $('clips').appendChild(frag);
+}
+
+// Billing Toggle
+function updatePlanPrices() {
+  const isAnnual = $('annualToggle').checked;
+  $('proPrice').innerHTML = isAnnual ? '$7 <small>/ month</small>' : '$9 <small>/ month</small>';
+  $('agencyPrice').innerHTML = isAnnual ? '$15 <small>/ month</small>' : '$19 <small>/ month</small>';
+  if ($('modalProPrice')) $('modalProPrice').innerHTML = isAnnual ? '$7 <small>/ mo (billed $84/yr)</small>' : '$9 <small>/ month</small>';
+  if ($('modalAgencyPrice')) $('modalAgencyPrice').innerHTML = isAnnual ? '$15 <small>/ mo (billed $180/yr)</small>' : '$19 <small>/ month</small>';
+}
+$('annualToggle').onchange = updatePlanPrices;
+updatePlanPrices();
+
+// Custom Brand handle persistence
+if ($('customBrand')) {
+  $('customBrand').oninput = () => store.set('cb.brand', $('customBrand').value.trim() || null);
+  if (store.get('cb.brand')) $('customBrand').value = store.get('cb.brand');
+}
+
+// Modal Logic
+function openModal(plan = 'pro') {
+  $('proModal').classList.add('open');
+  selectPlan(plan);
+  const activeCode = store.get('cb.proCode');
+  if (activeCode) {
+    switchModalTab('redeem');
+    $('modalProCode').value = activeCode;
+    verifyProCode(activeCode, true);
+  } else {
+    switchModalTab('checkout');
+  }
+}
+function closeModal() { $('proModal').classList.remove('open'); }
+$('modalClose').onclick = closeModal;
+$('navProBtn').onclick = () => openModal('pro');
+if ($('joinProBtn')) $('joinProBtn').onclick = () => openModal('pro');
+if ($('joinAgencyBtn')) $('joinAgencyBtn').onclick = () => openModal('agency');
+
+function switchModalTab(tab) {
+  const isCheckout = tab === 'checkout';
+  $('modalTabCheckout').classList.toggle('active', isCheckout);
+  $('modalTabCheckout').setAttribute('aria-selected', isCheckout);
+  $('modalTabRedeem').classList.toggle('active', !isCheckout);
+  $('modalTabRedeem').setAttribute('aria-selected', !isCheckout);
+  $('paneCheckout').style.display = isCheckout ? 'block' : 'none';
+  $('paneRedeem').style.display = !isCheckout ? 'block' : 'none';
+}
+$('modalTabCheckout').onclick = () => switchModalTab('checkout');
+$('modalTabRedeem').onclick = () => switchModalTab('redeem');
+
+function selectPlan(plan) {
+  const isAgency = plan === 'agency';
+  const agencyRadio = document.querySelector('input[name=checkoutPlan][value=agency]');
+  const proRadio = document.querySelector('input[name=checkoutPlan][value=pro]');
+  if (agencyRadio) agencyRadio.checked = isAgency;
+  if (proRadio) proRadio.checked = !isAgency;
+  if ($('tierCardPro')) $('tierCardPro').classList.toggle('selected', !isAgency);
+  if ($('tierCardAgency')) $('tierCardAgency').classList.toggle('selected', isAgency);
+}
+if ($('tierCardPro')) $('tierCardPro').onclick = () => selectPlan('pro');
+if ($('tierCardAgency')) $('tierCardAgency').onclick = () => selectPlan('agency');
+
+// Gumroad Payment Admin Panel
+if ($('togglePaymentAdmin')) {
+  $('togglePaymentAdmin').onclick = async (e) => {
+    e.preventDefault();
+    const p = $('paymentAdminPanel');
+    const open = p.classList.toggle('open');
+    if (open) {
+      try {
+        const res = await fetch('/api/payment-config');
+        const data = await res.json();
+        if (data.gumroad) {
+          $('cfgGumroadPro').value = data.gumroad.proUrl || '';
+          $('cfgGumroadAgency').value = data.gumroad.agencyUrl || '';
+          $('cfgGumroadProPermalink').value = data.gumroad.proPermalink || '';
+          $('cfgGumroadAgencyPermalink').value = data.gumroad.agencyPermalink || '';
+        }
+      } catch {}
+    }
+  };
+}
+
+if ($('savePaymentLinksBtn')) {
+  $('savePaymentLinksBtn').onclick = async () => {
+    const gumroadProUrl = $('cfgGumroadPro').value.trim();
+    const gumroadAgencyUrl = $('cfgGumroadAgency').value.trim();
+    const gumroadProPermalink = $('cfgGumroadProPermalink').value.trim();
+    const gumroadAgencyPermalink = $('cfgGumroadAgencyPermalink').value.trim();
+    try {
+      const res = await fetch('/api/payment-config', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ gumroadProUrl, gumroadAgencyUrl, gumroadProPermalink, gumroadAgencyPermalink })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast('✅ Gumroad links updated successfully!');
+        $('paymentAdminPanel').classList.remove('open');
+      } else {
+        toast('Failed to save Gumroad links');
+      }
+    } catch {
+      toast('Server request failed');
+    }
+  };
+}
+
+// Auto-detect Gumroad payment redirect URL parameters (?license_key=... or ?payment=success)
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('license_key') || params.get('code') || params.get('license');
+  const status = params.get('payment') || params.get('status');
+  if (code) {
+    verifyProCode(code, false);
+    toast('🎉 Gumroad purchase confirmed! License key activated.');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else if (status === 'success') {
+    toast('🎉 Payment received! Check your Gumroad receipt for your license key.');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+
+// Real-time Gumroad Overlay postMessage listener
+window.addEventListener('message', (event) => {
+  if (typeof event.origin === 'string' && !event.origin.includes('gumroad.com')) return;
+  try {
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if (data && (data.post_message_name === 'sale' || data.event === 'sale')) {
+      const code = data.license_key || data.order?.license_key;
+      if (code) {
+        verifyProCode(code, false);
+        toast('🎉 Gumroad purchase confirmed! License key activated.');
+      } else {
+        toast('🎉 Payment completed! Check your email receipt for your license key.');
+      }
+    }
+  } catch {}
+});
+
+if ($('applyFoundingBtn')) {
+  $('applyFoundingBtn').onclick = () => {
+    verifyProCode('CLIP-FOUNDING-PRO', false);
+  };
+}
+
+$('modalVerifyBtn').onclick = () => verifyProCode($('modalProCode').value, false);
+
+$('modalCheckoutBtn').onclick = async () => {
+  const plan = document.querySelector('input[name=checkoutPlan]:checked')?.value || 'pro';
+  const email = ($('checkoutEmail').value || '').trim() || 'streamer@twitch.tv';
+  $('modalCheckoutBtn').disabled = true;
+  $('modalCheckoutBtn').textContent = 'Opening Gumroad...';
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ plan, email, provider: 'gumroad' })
+    });
+    const data = await res.json();
+    if (data.redirect) {
+      toast('🛒 Opening Gumroad secure checkout...');
+      window.open(data.redirect, '_blank');
+      return;
+    }
+    if (data.success && data.code) {
+      await verifyProCode(data.code, false);
+      navigator.clipboard.writeText(data.code).catch(() => {});
+      toast(`🎉 Key ${data.code} generated & activated! Copied to clipboard.`);
+      closeModal();
+    } else {
+      toast(data.error || 'Checkout activation failed');
+    }
+  } catch {
+    toast('Checkout server request failed');
+  } finally {
+    $('modalCheckoutBtn').disabled = false;
+    $('modalCheckoutBtn').textContent = 'Proceed to Gumroad Checkout';
+  }
+};
+
+if ($('deactivateBtn')) {
+  $('deactivateBtn').onclick = () => {
+    store.set('cb.proCode', null);
+    store.set('cb.plan', null);
+    if ($('proCode')) $('proCode').value = '';
+    if ($('modalProCode')) $('modalProCode').value = '';
+    if ($('proBadge')) $('proBadge').style.display = 'none';
+    if ($('activeLicenseCard')) $('activeLicenseCard').style.display = 'none';
+    if ($('navProBtn')) {
+      $('navProBtn').classList.remove('active');
+      $('navProBtn').innerHTML = `⚡ <span class="nav-pro-text">Pro Studio</span>`;
+    }
+    if ($('planLabel')) $('planLabel').textContent = 'Free Starter · 3 Clips / Video';
+    if ($('brandStatus')) $('brandStatus').textContent = 'Free burns watermark';
+    if ($('brandUnlockBtn')) $('brandUnlockBtn').style.display = 'inline-flex';
+    toast('License deactivated on this browser.');
+  };
+}
+
+if ($('copyCodeBtn')) {
+  $('copyCodeBtn').onclick = () => {
+    const code = $('activeCodeDisplay').textContent;
+    if (code) navigator.clipboard.writeText(code).then(() => toast('📋 License code copied to clipboard!'));
+  };
+}
+</script>
+</body>
+</html>

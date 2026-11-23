@@ -1,0 +1,45 @@
+{
+  "clip-founding-pro": {
+    "code": "CLIP-FOUNDING-PRO",
+    "email": "admin@clipbest.local",
+    "created": "2026-11-23T06:00:00.000Z",
+    "plan": "pro"
+  },
+  "clip-0841413a": {
+    "code": "CLIP-0841413A",
+    "email": "streamer@twitch.tv",
+    "created": "2026-11-23T00:45:07.445Z",
+    "plan": "pro"
+  },
+  "clip-pro-0ad19f": {
+    "code": "CLIP-PRO-0AD19F",
+    "email": "test@streamer.com",
+    "created": "2026-11-23T01:56:01.175Z",
+    "plan": "pro"
+  },
+  "clip-pro-0784a0": {
+    "code": "CLIP-PRO-0784A0",
+    "email": "creator@twitch.tv",
+    "created": "2026-11-23T02:04:51.343Z",
+    "plan": "pro"
+  },
+  "clip-pro-f716b7": {
+    "code": "CLIP-PRO-F716B7",
+    "email": "streamer@payhip-test.com",
+    "created": "2026-11-23T03:38:21.063Z",
+    "plan": "pro",
+    "source": "payhip",
+    "payhipEvent": "paid",
+    "price": "9.00"
+  },
+  "gum-a1b2-c3d4-e5f6": {
+    "code": "GUM-A1B2-C3D4-E5F6",
+    "email": "streamer@gumroad-customer.com",
+    "created": "2026-11-23T04:12:24.718Z",
+    "plan": "pro",
+    "source": "gumroad",
+    "saleId": "sale_12345678",
+    "price": 900,
+    "refunded": false
+  }
+}
