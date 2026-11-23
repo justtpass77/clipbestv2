@@ -116,16 +116,43 @@ function cleanupWorkDir() {
 cleanupWorkDir();
 setInterval(cleanupWorkDir, 60 * 60 * 1000);
 
-// Check for cookies (from file or YTDLP_COOKIES env var)
-const COOKIES_FILE = path.join(WORK, 'cookies.txt');
-if (process.env.YTDLP_COOKIES && !fs.existsSync(COOKIES_FILE)) {
+// Check for cookies (from file, Render secret files, or YTDLP_COOKIES env var)
+const COOKIES_FILE = path.join(__dirname, 'cookies.txt');
+if (process.env.YTDLP_COOKIES) {
   try {
-    fs.mkdirSync(WORK, { recursive: true });
-    fs.writeFileSync(COOKIES_FILE, process.env.YTDLP_COOKIES, 'utf8');
-    console.log('[yt-dlp] Initialized cookies from YTDLP_COOKIES environment variable');
+    const rawCookies = String(process.env.YTDLP_COOKIES).replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').trim();
+    if (rawCookies.length > 0) {
+      fs.writeFileSync(COOKIES_FILE, rawCookies + '\n', 'utf8');
+      console.log(`[yt-dlp] Successfully loaded YouTube cookies from YTDLP_COOKIES environment variable (${rawCookies.length} characters)`);
+    }
   } catch (err) {
     console.error('[yt-dlp] Failed to write cookies from env:', err.message);
   }
+}
+
+function getCookieFilePath() {
+  const possiblePaths = [
+    process.env.YTDLP_COOKIES_FILE,
+    '/etc/secrets/cookies.txt',               // Render Secret Files default path
+    COOKIES_FILE,
+    path.join(WORK, 'cookies.txt'),
+    path.join(process.cwd(), 'cookies.txt')
+  ];
+  for (const p of possiblePaths) {
+    if (p && fs.existsSync(p)) {
+      try {
+        if (fs.statSync(p).size > 10) return p;
+      } catch {}
+    }
+  }
+  return null;
+}
+
+const activeCookie = getCookieFilePath();
+if (activeCookie) {
+  console.log(`[yt-dlp] Authenticated session cookies found and activated at: ${activeCookie}`);
+} else {
+  console.log('[yt-dlp] No cookies detected. To scrape YouTube on cloud hosting, add YTDLP_COOKIES in environment.');
 }
 
 const BASE_YT_ARGS = [
@@ -134,14 +161,14 @@ const BASE_YT_ARGS = [
   '--js-runtimes', 'node',
   '--force-ipv4',
   '--socket-timeout', '30',
-  '--extractor-args', 'youtube:player_client=web_embedded,web,tv',
+  '--extractor-args', 'youtube:player_client=web,web_embedded,tv',
   '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
 ];
 
 function getYtArgs() {
   const args = [...BASE_YT_ARGS];
-  const cookiePath = process.env.YTDLP_COOKIES_FILE || (fs.existsSync(COOKIES_FILE) ? COOKIES_FILE : null) || (fs.existsSync(path.join(__dirname, 'cookies.txt')) ? path.join(__dirname, 'cookies.txt') : null);
-  if (cookiePath && fs.existsSync(cookiePath)) {
+  const cookiePath = getCookieFilePath();
+  if (cookiePath) {
     args.push('--cookies', cookiePath);
   }
   return args;
