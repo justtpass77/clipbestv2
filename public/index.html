@@ -3030,7 +3030,13 @@ function setStage(stage, pct) {
 }
 
 function fail(msg) {
-  $('alert').textContent = msg; $('alert').style.display = 'block';
+  const alertEl = $('alert');
+  if (/upload video file|upload the video/i.test(msg)) {
+    alertEl.innerHTML = `<div>${esc(msg)}</div><button type="button" onclick="if($('tabUpload')){$('tabUpload').click(); $('alert').style.display='none';}" style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">📁 Switch to File Upload</button>`;
+  } else {
+    alertEl.textContent = msg;
+  }
+  alertEl.style.display = 'block';
   $('wsLabel').textContent = 'Stopped';
   $('submit').disabled = false;
   if ($('uploadSubmit')) $('uploadSubmit').disabled = false;

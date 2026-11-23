@@ -11,9 +11,11 @@ const { generateHooks, transcribeAudioClip, detectFacecamFromImage, serverProvid
 const { buildAss, CAPTION_STYLES } = require('./captions');
 
 const YTDLP_BIN = process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp';
-const YTDLP = fs.existsSync(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN))
-  ? path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN)
-  : (process.env.YTDLP_PATH || 'yt-dlp');
+const YTDLP = (process.env.YTDLP_PATH && fs.existsSync(process.env.YTDLP_PATH))
+  ? process.env.YTDLP_PATH
+  : (fs.existsSync(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN))
+      ? path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', YTDLP_BIN)
+      : (process.env.YTDLP_PATH || 'yt-dlp'));
 const WORK = path.join(__dirname, 'work');
 const CLIP_LEN = 35;      // seconds per clip
 const MAX_CLIPS = 10;     // moments we look for
@@ -112,7 +114,37 @@ function cleanupWorkDir() {
 cleanupWorkDir();
 setInterval(cleanupWorkDir, 60 * 60 * 1000);
 
-const YT_ARGS = ['--no-playlist'];
+const YT_ARGS = [
+  '--no-playlist',
+  '--no-check-certificates',
+  '--js-runtimes', 'node',
+  '--extractor-args', 'youtube:player_client=android,web',
+  '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+];
+
+function cleanYtError(err) {
+  const msg = String(err?.message || err || '');
+  if (/unavailable/i.test(msg)) {
+    return 'This YouTube video is unavailable or has been removed. Please verify the URL or try another video.';
+  }
+  if (/private|Sign in to confirm your age|Sign in/i.test(msg)) {
+    return 'This YouTube video is private or age-restricted. You can upload the video file directly using the "Upload Video File" tab above.';
+  }
+  if (/HTTP Error 403|Forbidden|Failed to extract any player response|bot|automated queries|captcha/i.test(msg)) {
+    return 'YouTube blocked access from cloud servers (HTTP 403 / Bot Protection). Please use the "Upload Video File" tab above to upload your stream or video directly — it processes fast and with 100% reliability!';
+  }
+  if (/Live streams must have ended/i.test(msg)) {
+    return 'This stream is still live. Please wait until the broadcast ends and paste the VOD link.';
+  }
+  // Strip any yt-dlp warning prefixes and python stacktraces
+  const cleaned = msg
+    .replace(/^.*?WARNING:.*?(?=(ERROR:|$))/s, '')
+    .replace(/^ERROR:\s*(\[youtube\]\s*[^:]+:\s*)?/i, '')
+    .split(/\r?\n/)[0]
+    .trim();
+
+  return cleaned || 'Failed to process YouTube stream. Please verify the link or upload the video directly via the Upload tab.';
+}
 
 // ---- encoder: use the GPU if ffmpeg can, else fast CPU x264 ----
 const CPU_ENCODER = { name: 'libx264', args: ['-c:v', 'libx264', '-preset', 'superfast', '-crf', '23'] };
@@ -250,7 +282,7 @@ function peaksFromSeries(series, step, duration, n) {
 
 async function audioLoudness(url, id) {
   const a = path.join(WORK, id, 'audio.m4a');
-  await run(YTDLP, [...YT_ARGS, '-f', 'ba', '-o', a, url]);
+  await run(YTDLP, [...YT_ARGS, '-f', 'ba/b', '-o', a, url]);
   return a;
 }
 
@@ -358,7 +390,12 @@ async function processJob(id, url, secret = {}) {
   const set = (step, pct, stage) => { job.step = step; job.pct = pct; if (stage !== undefined) job.stage = stage; };
   try {
     set('Reading video info', 5, 0);
-    const info = JSON.parse(await run(YTDLP, [...YT_ARGS, '-J', url]));
+    let info;
+    try {
+      info = JSON.parse(await run(YTDLP, [...YT_ARGS, '-J', url]));
+    } catch (ytErr) {
+      throw new Error(cleanYtError(ytErr));
+    }
     job.title = info.title;
     job.thumb = info.thumbnail;
     const duration = info.duration;
@@ -396,11 +433,13 @@ async function processJob(id, url, secret = {}) {
 
     // Start downloading clip segments
     const downloads = spans.map(s => run(YTDLP, [
-      ...YT_ARGS, '-f', 'bv*[height<=720]+ba/b[height<=720]/b',
+      ...YT_ARGS, '-f', 'bv*[height<=720]+ba/b[height<=720]/b/18/best',
       '--download-sections', `*${s.start}-${s.end}`, '--force-keyframes-at-cuts',
       '--merge-output-format', 'mp4', '-o', path.join(dir, `raw${s.k}.mp4`), url,
     ]));
-    downloads.forEach(p => p.catch(() => {}));
+    downloads.forEach((p, idx) => p.catch(err => {
+      console.warn(`[yt-dlp download ${idx}] Warning:`, err?.message || err);
+    }));
 
     set('Reading the transcript', 22, 2);
     let words = await fetchWords(url, dir);
@@ -480,7 +519,8 @@ async function processJob(id, url, secret = {}) {
     set('Done', 100, 5);
     job.done = true;
   } catch (e) {
-    job.error = String(e.message || e);
+    console.error(`[job ${id}] Error:`, e);
+    job.error = cleanYtError(e);
   }
 }
 
@@ -603,7 +643,8 @@ async function processLocalJob(id, sourcePath, originalName, secret = {}) {
     set('Done', 100, 5);
     job.done = true;
   } catch (e) {
-    job.error = String(e.message || e);
+    console.error(`[job ${id}] Error:`, e);
+    job.error = cleanYtError(e);
   }
 }
 
