@@ -9,6 +9,8 @@ work/*
 .env
 .env.local
 .env.*.local
+cookies.txt
+*cookies*.txt
 
 # Logs
 *.log
